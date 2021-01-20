@@ -1,7 +1,6 @@
-
 from django.http import JsonResponse
 
-from log import logger
+from epub.core.log import logger
 
 
 class Results(object):
@@ -40,5 +39,3 @@ class Results(object):
             'results': data,
         }}
         return JsonResponse(data=_info, status=200)
-
-
