@@ -1,2 +1,2 @@
 import logging
-logger = logging.getLogger("django.epub")
+logger = logging.getLogger("django")
