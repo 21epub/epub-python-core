@@ -1,10 +1,14 @@
+import os
+import sys
 import environ
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
 # reading .env file
-environ.Env.read_env()
+frame = sys._getframe()
+env_file = os.path.join(os.path.dirname(frame.f_back.f_code.co_filename), '.env')
+environ.Env.read_env(env_file)
 
 # False if not in os.environ
 DEBUG = env('DEBUG')
@@ -23,7 +27,64 @@ CACHES = {
     'default': env.cache()
 }
 
-LOG_LEVEL = env('LOG_LEVEL', default='INFO')
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+
+
+# Password validation
+# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/3.1/topics/i18n/
+
+LANGUAGE_CODE = 'zh-Hans'
+
+TIME_ZONE = 'Asia/Shanghai'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.1/howto/static-files/
+
+STATIC_URL = '/static/'
+
+
 
 LOGGING = {
     'version': 1,
@@ -35,7 +96,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': LOG_LEVEL,
+            'level': env('DJANGO_LOG_LEVEL', default='INFO'),
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         }
@@ -43,7 +104,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console'],
-            'level': LOG_LEVEL,
+            'level': env('DJANGO_LOG_LEVEL', default='INFO'),
             'propagate': False
         }
     }
