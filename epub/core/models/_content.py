@@ -32,11 +32,16 @@ class BasicContentModel(TimeStampedModel):
         created, modified
         status 默认：0 draft, 1 published
         is_removed: 软删除标记
-    用法:
+    Demo1: find list
        draft_books = Book.draft.all()
        published_books = Book.published.all()
        not_deleted_books = Book.objects.all()
        all_books = Book.all_objects.all()
+    Demo2: status change
+       book.status = Book.STATUS.draft
+       book.status = Book.STATUS.published
+    Demo3: status_display
+        status_display = Article.STATUS[article.status]
     注意：
         1. 子类如果需要替换objects，自定义的Manager需要继承BasicContentManager
         2. track=FieldTracker 不能在基类中定义，需要在子类中实现时定义：
