@@ -30,18 +30,22 @@ class BasicContentModel(TimeStampedModel):
     """
     内容基类，包含功能：
         created, modified
-        status 默认：draft, published
+        status 默认：0 draft, 1 published
         is_removed: 软删除标记
+    用法:
+       draft_books = Book.draft.all()
+       published_books = Book.published.all()
+       not_deleted_books = Book.objects.all()
+       all_books = Book.all_objects.all()
     注意：
         1. 子类如果需要替换objects，自定义的Manager需要继承BasicContentManager
-
-        2. FieldTracker 不能在基类中定义，需要在子类中实现时定义：
+        2. track=FieldTracker 不能在基类中定义，需要在子类中实现时定义：
         https://django-model-utils.readthedocs.io/en/latest/utilities.html#field-tracker
     """
 
-    STATUS = Choices("draft", "published")
+    STATUS = Choices((0, "draft", _("草稿")), (1, "published", _("已发布")))
 
-    status = StatusField(_("status"))
+    status = models.IntegerField(choices=STATUS, default=STATUS.draft)
     status_changed = MonitorField(_("status changed"), monitor="status")
     is_removed = models.BooleanField(default=False)
 
@@ -84,14 +88,15 @@ def add_status_query_managers(sender, **kwargs):
         return
 
     default_manager = sender._meta.default_manager
-
-    for value, display in getattr(sender, "STATUS", ()):
-        if _field_exists(sender, value):
-            raise ImproperlyConfigured(
-                "StatusModel: Model '%s' has a field named '%s' which "
-                "conflicts with a status of the same name." % (sender.__name__, value)
-            )
-        sender.add_to_class(value, BasicContentManager(status=value))
+    _status = getattr(sender, "STATUS")
+    if _status:
+        for value, key, display in _status._triples:
+            if _field_exists(sender, key):
+                raise ImproperlyConfigured(
+                    "StatusModel: Model '%s' has a field named '%s' which "
+                    "conflicts with a status of the same name." % (sender.__name__, key)
+                )
+            sender.add_to_class(key, BasicContentManager(status=value))
 
     sender._meta.default_manager_name = default_manager.name
 
