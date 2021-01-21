@@ -2,6 +2,8 @@ import os
 import sys
 import environ
 
+# See demo https://github.com/21epub/epub-python-core/
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -13,6 +15,8 @@ environ.Env.read_env(env_file)
 
 # False if not in os.environ
 DEBUG = env("DEBUG")
+
+ALLOWED_HOSTS = []
 
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
 SECRET_KEY = env("SECRET_KEY")
