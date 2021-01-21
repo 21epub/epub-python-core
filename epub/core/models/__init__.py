@@ -1,1 +1,1 @@
-from ._base import BasicContentModel  # noqa F401
+from ._content import BasicContentModel
