@@ -31,4 +31,4 @@ class SubUser(models.Model):
     can_pack = models.BooleanField(default=False)
     last_login = models.DateTimeField(_('last login'), default=timezone.now)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    owner = models.ForeignKey(User, related_name='subusers')
+    owner = models.ForeignKey(User, related_name='subusers', on_delete=models.CASCADE)
