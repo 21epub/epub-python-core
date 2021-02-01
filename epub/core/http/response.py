@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-
+from rest_framework.response import Response
 from epub.core.log import logger
 
 
@@ -39,3 +39,54 @@ class Results(object):
             'results': data,
         }}
         return JsonResponse(data=_info, status=200)
+
+class CreateResponseMixin(Results):
+    def post(self, request, *args, **kwargs):
+        res = super().post(request, *args, **kwargs)
+        if str(res.status_code).startswith("2"):
+            res_data = self.succss_result(res.data)
+        else:
+            res_data = self.error_info(res.data, res.status_code)
+        return Response(res_data)
+
+
+class RetrieveResponseMixin(Results):
+    def retrieve(self, request, *args, **kwargs):
+        res = super().retrieve(request, *args, **kwargs)
+        if str(res.status_code).startswith("2"):
+            res_data = self.succss_result(res.data)
+        else:
+            res_data = self.error_info(res.data, res.status_code)
+        return Response(res_data)
+
+
+class DeleteResponseMixin(Results):
+    def delete(self, request, *args, **kwargs):
+        res = super().delete(request, *args, **kwargs)
+        if str(res.status_code).startswith("2"):
+            res_data = self.succss_result(res.data)
+        else:
+            res_data = self.error_info(res.data, res.status_code)
+        return Response(res_data)
+
+
+class UpdateResponseMixin(Results):
+    def update(self, request, *args, **kwargs):
+        res = super().update(request, *args, **kwargs)
+        if str(res.status_code).startswith("2"):
+            res_data = self.succss_result(res.data)
+        else:
+            res_data = self.error_info(res.data, res.status_code)
+        return Response(res_data)
+
+
+class RetrieveUpdateDeleteResponseMixin(
+    RetrieveResponseMixin,
+    UpdateResponseMixin,
+    DeleteResponseMixin,
+):
+    pass
+
+
+class CreateDeleteResponseMixin(CreateResponseMixin, DeleteResponseMixin):
+    pass
