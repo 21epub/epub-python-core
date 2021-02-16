@@ -27,7 +27,7 @@ class Results(object):
         }
         if status is None:
             status = code
-        _info = json.loads(_info)
+        _info = json.dumps(_info)
         return JsonResponse(data=_info, status=status)
 
     def succss_result(self, data=None):
@@ -41,7 +41,7 @@ class Results(object):
             'sum': self.total,
             'results': data,
         }}
-        _info = json.loads(_info)
+        _info = json.dumps(_info)
         return JsonResponse(data=_info, status=200)
 
 class CreateResponseMixin(Results):
