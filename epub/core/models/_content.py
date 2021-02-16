@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from model_utils import Choices
 from model_utils.fields import StatusField, MonitorField
-from model_utils.managers import QueryManagerMixin, SoftDeletableQuerySetMixin
+from model_utils.managers import SoftDeletableQuerySetMixin, QueryManager
 from model_utils.models import TimeStampedModel, _field_exists
 
 
@@ -15,7 +15,7 @@ class BasicContentQuerySet(SoftDeletableQuerySetMixin, QuerySet):
 
 
 class BasicContentManager(
-    QueryManagerMixin, BaseManager.from_queryset(BasicContentQuerySet)
+    QueryManager, BaseManager.from_queryset(BasicContentQuerySet)
 ):
     """
     初始化时支持传入过滤参数

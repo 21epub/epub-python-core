@@ -1,3 +1,5 @@
+import json
+
 from django.http import JsonResponse
 from rest_framework.response import Response
 from epub.core.log import logger
@@ -25,6 +27,7 @@ class Results(object):
         }
         if status is None:
             status = code
+        _info = json.loads(_info)
         return JsonResponse(data=_info, status=status)
 
     def succss_result(self, data=None):
@@ -38,6 +41,7 @@ class Results(object):
             'sum': self.total,
             'results': data,
         }}
+        _info = json.loads(_info)
         return JsonResponse(data=_info, status=200)
 
 class CreateResponseMixin(Results):
