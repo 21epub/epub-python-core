@@ -27,8 +27,7 @@ class Results(object):
         }
         if status is None:
             status = code
-        _info = json.dumps(_info)
-        return JsonResponse(data=_info, status=status, safe=False)
+        return _info
 
     def succss_result(self, data=None):
         if data is None:
@@ -41,8 +40,7 @@ class Results(object):
             'sum': self.total,
             'results': data,
         }}
-        _info = json.dumps(_info)
-        return JsonResponse(data=_info, status=200, safe=False)
+        return _info
 
 class CreateResponseMixin(Results):
     def post(self, request, *args, **kwargs):
