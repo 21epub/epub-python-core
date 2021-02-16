@@ -28,7 +28,7 @@ class Results(object):
         if status is None:
             status = code
         _info = json.dumps(_info)
-        return JsonResponse(data=_info, status=status)
+        return JsonResponse(data=_info, status=status, safe=False)
 
     def succss_result(self, data=None):
         if data is None:
@@ -42,7 +42,7 @@ class Results(object):
             'results': data,
         }}
         _info = json.dumps(_info)
-        return JsonResponse(data=_info, status=200)
+        return JsonResponse(data=_info, status=200, safe=False)
 
 class CreateResponseMixin(Results):
     def post(self, request, *args, **kwargs):
