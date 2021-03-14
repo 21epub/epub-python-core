@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 
 # Create your tests here.
 from books.models import Book
+from books.views import JSView
 
 User = get_user_model()
 
@@ -33,3 +34,15 @@ class BookTestCase(TestCase):
         self.assertEqual(yunwen.status, Book.STATUS.published)
         self.assertEqual(Book.draft.all().count(), 1)
         self.assertEqual(Book.published.all().count(), 1)
+
+class ViewTestCase(TestCase):
+
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+
+    def test_js_res(self):
+        request = self.factory.get('/test.js')
+        res = JSView.as_view()(request)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.content_type, 'application/javascript')
+        self.assertEqual(res.rendered_content, b'var js=1;')
