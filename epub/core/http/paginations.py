@@ -1,10 +1,9 @@
 from collections import OrderedDict
-from rest_framework.pagination import (
-    PageNumberPagination as drf_PageNumberPagination,
-)
+from rest_framework.pagination import PageNumberPagination as drf_PageNumberPagination
 from rest_framework.settings import api_settings
 from rest_framework import status
 from rest_framework.response import Response
+
 
 def _positive_int(integer_string, strict=False, cutoff=None):
     ret = int(integer_string)
@@ -15,6 +14,7 @@ def _positive_int(integer_string, strict=False, cutoff=None):
     if cutoff:
         return min(ret, cutoff)
     return ret
+
 
 class PageNumberPagination(drf_PageNumberPagination):
     page_size = api_settings.PAGE_SIZE
@@ -54,3 +54,8 @@ class PageNumberPagination(drf_PageNumberPagination):
             ]
         )
         return Response(data=ret)
+
+
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    max_page_size = 10000
