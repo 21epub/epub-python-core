@@ -32,8 +32,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "rest_framework",
     "epub.apps.epub_auth",
     "books",
+    "epub.apps.epub_categories"
 ]
 
 MIDDLEWARE = [
@@ -45,6 +47,17 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    "DEFAULT_PAGINATION_CLASS": "epub.core.http.paginations.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "books.authentication.MockUserAuthentication",
+    ),
+}
 
 ROOT_URLCONF = "epub_python_core.urls"
 
