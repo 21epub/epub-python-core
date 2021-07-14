@@ -15,4 +15,6 @@ class Book(BasicContentModel):
     cover = models.FileField()
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     tracker = FieldTracker()
-    categories = models.ManyToManyField(Category, related_name="book_set", default=models.CASCADE)
+    categories = models.ManyToManyField(
+        Category, related_name="book_set", default=models.CASCADE
+    )

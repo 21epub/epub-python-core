@@ -61,7 +61,6 @@ class User(object):
 
 
 class MockUserAuthentication(BaseAuthentication):
-
     def authenticate(self, request):
         return (
             User(

@@ -1,6 +1,7 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
+
 # Create your models here.
 
 
@@ -33,4 +34,4 @@ class Category(MPTTModel):
         return position
 
     class MPTTMeta:
-        order_insertion_by = ['position']
+        order_insertion_by = ["position"]

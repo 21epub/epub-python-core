@@ -7,14 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('epub_categories', '0001_initial'),
-        ('books', '0001_initial'),
+        ("epub_categories", "0001_initial"),
+        ("books", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='book',
-            name='categories',
-            field=models.ManyToManyField(default=django.db.models.deletion.CASCADE, related_name='book_set', to='epub_categories.Category'),
+            model_name="book",
+            name="categories",
+            field=models.ManyToManyField(
+                default=django.db.models.deletion.CASCADE,
+                related_name="book_set",
+                to="epub_categories.Category",
+            ),
         ),
     ]

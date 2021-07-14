@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "epub.apps.epub_auth",
     "books",
-    "epub.apps.epub_categories"
+    "epub.apps.epub_categories",
 ]
 
 MIDDLEWARE = [
@@ -54,9 +54,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "epub.core.http.paginations.PageNumberPagination",
     "PAGE_SIZE": 20,
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "books.authentication.MockUserAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("books.authentication.MockUserAuthentication",),
 }
 
 ROOT_URLCONF = "epub_python_core.urls"

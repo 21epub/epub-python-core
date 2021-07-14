@@ -18,6 +18,8 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path(r"v3/api/(?P<book_type>cbt|quiz|doc|video|h5|docset|poster)/",
-            include(("books.urls", "books"), namespace="book"))
+    re_path(
+        r"v3/api/(?P<book_type>cbt|quiz|doc|video|h5|docset|poster)/",
+        include(("books.urls", "books"), namespace="book"),
+    ),
 ]

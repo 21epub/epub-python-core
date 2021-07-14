@@ -43,14 +43,14 @@ class CategorySerializer(serializers.ModelSerializer):
             attrs["position"] = position + Category.POSITION_STEP
         else:
             attrs["position"] = Category.POSITION_STEP
-        attrs['category_type'] = self.context.get('view').kwargs.get('category_type')
+        attrs["category_type"] = self.context.get("view").kwargs.get("category_type")
         return attrs
 
     def create(self, validated_data):
-        request = self.context.get('request')
+        request = self.context.get("request")
         user_id, subuser_id = self.get_user_and_subuser_id(request)
-        validated_data['user_id'] = user_id
-        validated_data['subuser_id'] = subuser_id
+        validated_data["user_id"] = user_id
+        validated_data["subuser_id"] = subuser_id
         return super().create(validated_data)
 
     def get_children(self, obj):
@@ -65,10 +65,7 @@ class CategorySerializer(serializers.ModelSerializer):
         exclude = [
             "parent",
         ]
-        extra_kwargs = {
-            'category_type': {"required": False}
-        }
-
+        extra_kwargs = {"category_type": {"required": False}}
 
 
 class CategoryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
@@ -88,12 +85,11 @@ class CategoryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
             "children": {"read_only": True},
             "user_id": {"read_only": True},
             "subuser_id": {"read_only": True},
-            "position": {"read_only": True}
+            "position": {"read_only": True},
         }
 
 
 class CategorySortSerializer(serializers.ModelSerializer):
-
     def validate(self, attrs):
 
         target = self.initial_data.get("target")
@@ -177,24 +173,22 @@ class CategorySortSerializer(serializers.ModelSerializer):
         target_obj.parent = parent_obj
         target_obj.save()
 
-
     class Meta:
         model = Category
         fields = ["id", "position", "parent"]
 
 
 class CategoryBatchSerializers(serializers.ModelSerializer):
-
     def validate(self, attrs):
-        kwargs = self.context.get('view').kwargs
+        kwargs = self.context.get("view").kwargs
         attrs["app_name"] = kwargs.get("app_name")
         attrs["model_name"] = kwargs.get("model_name")
         try:
-            app_model = apps.get_model(attrs.get('app_name'), attrs.get('model_name'))
+            app_model = apps.get_model(attrs.get("app_name"), attrs.get("model_name"))
         except LookupError:
             raise ValidationError("数据类型不存在.")
-        content_ids = self.initial_data.get('content_ids')
-        category_ids = self.initial_data.get('category_ids')
+        content_ids = self.initial_data.get("content_ids")
+        category_ids = self.initial_data.get("category_ids")
         validate_content_ids = copy.copy(content_ids)
         validate_category_ids = copy.copy(category_ids)
         for content_id in content_ids:
