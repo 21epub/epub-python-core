@@ -12,6 +12,7 @@ class APIViewMixin(object):
     注意：
         这个Mixin 使用是需要靠左边。
     """
+
     def dispatch(self, request, *args, **kwargs):
         try:
             return super().dispatch(request, *args, **kwargs)
@@ -20,7 +21,7 @@ class APIViewMixin(object):
         except TypeError as e:
             return Results.error_info(str(e), 400)
         except PermissionDenied:
-            return Results.error_info(u'无访问权限', 403)
+            return Results.error_info(u"无访问权限", 403)
         except Http404 as e:
             return Results.error_info(str(e), 404)
         except Exception as e:
@@ -33,6 +34,7 @@ class CsrfExemptMixin(object):
     注意:
         这个Mixin 需要放在最左侧
     """
+
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
@@ -45,6 +47,7 @@ class CreateResponseMixin(Results):
             return self.succss_result(res.data)
         else:
             return self.error_info(res.data, res.status_code)
+
 
 class RetrieveResponseMixin(Results):
     def retrieve(self, request, *args, **kwargs):

@@ -10,5 +10,4 @@ class JSView(APIView):
     renderer_classes = [JSRenderer]
 
     def get(self, request):
-        return Response('var js=1;', content_type='application/javascript')
-
+        return Response("var js=1;", content_type="application/javascript")
