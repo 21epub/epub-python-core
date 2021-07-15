@@ -275,6 +275,7 @@ class TestBookCategory(TestCase):
         book1 = Book.objects.create(title="book1", user=test)
         book2 = Book.objects.create(title="book2", user=test)
         book3 = Book.objects.create(title="book3", user=test)
+        Book.objects.create(title="book4", user=test)
         category1 = Category.objects.create(
             title="category1", user_id=1, subuser_id=1, category_type="h5"
         )
@@ -299,6 +300,12 @@ class TestBookCategory(TestCase):
         self.assertEqual(results2[0].get("id"), book1.id)
         self.assertEqual(results2[1].get("id"), book2.id)
         self.assertEqual(results2[2].get("id"), book3.id)
+
+        url = reverse("book:book_list_api", kwargs={"book_type": "h5"})
+        res3 = self.client.get(url)
+        self.assertEqual(res3.status_code, 200)
+        results2 = res3.data.get("data").get("results")
+        self.assertEqual(len(results2), 4)
 
     def test_sort_reset_category(self):
         data1 = {"title": "root"}

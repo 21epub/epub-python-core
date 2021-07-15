@@ -46,8 +46,5 @@ class ContentCategoryFilterBackend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         filter_category_id = self.get_filter_params(request, view)
         if filter_category_id:
-            if isinstance(filter_category_id, list):
-                return queryset.filter(categories__in=filter_category_id).distinct()
-            else:
-                return queryset.filter(categories=filter_category_id)
+            return queryset.filter(categories__in=filter_category_id).distinct()
         return queryset
