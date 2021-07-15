@@ -102,7 +102,7 @@ class TestBookCategory(TestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(len(results[0].get("children")), 2)
 
-    def test_filter_book_categorys(self):
+    def test_filter_book_category(self):
         Category.objects.create(
             title="h5_root1", user_id=1, subuser_id=1, category_type="h5"
         )
@@ -269,3 +269,91 @@ class TestBookCategory(TestCase):
         )
         self.assertEqual(category_ids, book1_category_ids)
         self.assertEqual(category_ids, book2_category_ids)
+
+    def test_filter_book_by_category(self):
+        test = User.objects.create_user(username="test")
+        book1 = Book.objects.create(title="book1", user=test)
+        book2 = Book.objects.create(title="book2", user=test)
+        book3 = Book.objects.create(title="book3", user=test)
+        category1 = Category.objects.create(
+            title="category1", user_id=1, subuser_id=1, category_type="h5"
+        )
+        category2 = Category.objects.create(
+            title="category2", user_id=1, subuser_id=1, category_type="h5"
+        )
+        book1.categories.add(category1)
+        book2.categories.add(*[category1, category2])
+        book3.categories.add(category2)
+        url = reverse("book:book_list_api", kwargs={"book_type": "h5"})
+        res = self.client.get(url, data={"category_id": category1.id})
+        self.assertEqual(res.status_code, 200)
+        results = res.data.get("data").get("results")
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].get("id"), book1.id)
+        self.assertEqual(results[1].get("id"), book2.id)
+
+        res2 = self.client.get(url, data={"category_id": [category1.id, category2.id]})
+        self.assertEqual(res2.status_code, 200)
+        results2 = res2.data.get("data").get("results")
+        self.assertEqual(len(results2), 3)
+        self.assertEqual(results2[0].get("id"), book1.id)
+        self.assertEqual(results2[1].get("id"), book2.id)
+        self.assertEqual(results2[2].get("id"), book3.id)
+
+    def test_sort_reset_category(self):
+        data1 = {"title": "root"}
+        url = reverse(
+            "book:epub_categories:category_list_create_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(url, data1)
+        c1 = Category.objects.get(title="root")
+        # 创建3条记录
+        child_data1 = {"title": "child1", "parent": c1.id}
+        url = reverse(
+            "book:epub_categories:category_list_create_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(url, child_data1)
+        child_data2 = {"title": "child2", "parent": c1.id}
+        url = reverse(
+            "book:epub_categories:category_list_create_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(url, child_data2)
+        child_data3 = {"title": "child3", "parent": c1.id}
+        url = reverse(
+            "book:epub_categories:category_list_create_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(url, child_data3)
+        root = Category.objects.get(title="root")
+        child1 = Category.objects.get(title="child1")
+        child2 = Category.objects.get(title="child2")
+        child3 = Category.objects.get(title="child3")
+        # 将child3移动到child1与child2之间
+        child1.position = 1
+        child1.save()
+        child2.position = 2
+        child2.save()
+        # 执行排序操作  将child3放置child1 child2 之间
+        url = reverse(
+            "book:epub_categories:category_sort_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(
+            url,
+            data={
+                "target": child3.id,
+                "before": child1.id,
+                "after": child2.id,
+                "parent": root.id,
+            },
+            content_type="application/json",
+        )
+        child1_update = Category.objects.get(title="child1")
+        child2_update = Category.objects.get(title="child2")
+        child3_update = Category.objects.get(title="child3")
+        self.assertEqual(child1_update.position, Category.POSITION_STEP)
+        self.assertEqual(
+            child2_update.position, child1_update.position + Category.POSITION_STEP
+        )
+        self.assertEqual(
+            child3_update.position,
+            (child1_update.position + child2_update.position) / 2,
+        )
