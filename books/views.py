@@ -4,6 +4,7 @@ from rest_framework import generics
 
 
 # Create your views here.
+from epub.apps.epub_labels.views.filters import LabelFilter
 from epub.core.http.renderer import JSRenderer
 from books.models import Book
 from books.serializers import BookListSerializer
@@ -20,4 +21,6 @@ class JSView(APIView):
 class BookListAPIView(generics.ListAPIView):
     serializer_class = BookListSerializer
     queryset = Book.objects.all()
-    filter_backends = [ContentCategoryFilterBackend]
+    filter_backends = [ContentCategoryFilterBackend, LabelFilter]
+
+    label_linked_app = "cbt"
