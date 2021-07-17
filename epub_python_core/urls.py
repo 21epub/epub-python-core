@@ -18,6 +18,12 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path(
+        "v3/api/labels/",
+        include(
+            ("epub.apps.epub_labels.urls", "epub_labels"), namespace="label_api_url"
+        ),
+    ),
     re_path(
         r"v3/api/(?P<book_type>cbt|quiz|doc|video|h5|docset|poster)/",
         include(("books.urls", "books"), namespace="book"),
