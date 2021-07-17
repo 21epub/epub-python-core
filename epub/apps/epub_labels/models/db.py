@@ -91,8 +91,6 @@ class AppLabel(models.Model):
     @classmethod
     def get_filter_mappings(cls, linked_app: str, jsonfield_name=None) -> dict:
         mapppings = {}
-        if not linked_app:
-            linked_app = cls.APP_CHOICES.cbt
         applabels = cls.objects.prefetch_related("label").filter(linked_app=linked_app)
         for row in applabels:
             if jsonfield_name:
