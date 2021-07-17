@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "epub.apps.epub_auth",
     "books",
     "epub.apps.epub_categories",
+    "epub.apps.epub_labels",
 ]
 
 MIDDLEWARE = [

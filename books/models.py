@@ -4,13 +4,14 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from epub.core.models import BasicContentModel
 from epub.apps.epub_categories.models.category import Category
+from epub.apps.epub_labels.models import LabelMixin
 
 from model_utils import FieldTracker
 
 # Create your models here.
 
 
-class Book(BasicContentModel):
+class Book(LabelMixin, BasicContentModel):
     title = models.CharField(max_length=255, blank=False, db_index=True)
     cover = models.FileField()
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
