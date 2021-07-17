@@ -12,13 +12,6 @@ class LabelSerializer(SetCreatorMixin, serializers.ModelSerializer):
     value_type = ShowValueChoiceField(choices=Label.VALUE_TYPE_CHOICES)
     linked = serializers.BooleanField(read_only=True)
 
-    def get_linked(self, obj):
-        # TODO 查询使用有外键引用
-        if obj.labels.count() > 0:
-            return True
-        else:
-            return False
-
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
         if self.instance:
