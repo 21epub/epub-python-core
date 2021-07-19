@@ -5,9 +5,9 @@ from epub.core.models import BaseCommonModel
 # Create your models here.
 
 
-class Category(BaseCommonModel):
+class Folder(BaseCommonModel):
 
-    category_type = models.CharField(max_length=32)
+    folder_type = models.CharField(max_length=32)
 
     class MPTTMeta:
         order_insertion_by = ["position"]

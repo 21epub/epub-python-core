@@ -8,6 +8,7 @@ from model_utils import Choices
 from model_utils.fields import StatusField, MonitorField
 from model_utils.managers import SoftDeletableQuerySetMixin, QueryManager
 from model_utils.models import TimeStampedModel, _field_exists
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class BasicContentQuerySet(SoftDeletableQuerySetMixin, QuerySet):
@@ -107,3 +108,38 @@ def add_status_query_managers(sender, **kwargs):
 
 
 models.signals.class_prepared.connect(add_status_query_managers)
+
+
+class BaseCommonModel(MPTTModel):
+    """
+    此公共模型用于封装Category和Folder的公共属性和方法
+    """
+
+    POSITION_STEP = 2 ** 16
+
+    title = models.CharField(max_length=255)
+    parent = TreeForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="children",
+        verbose_name=_("parent"),
+    )
+    position = models.PositiveIntegerField(default=POSITION_STEP)
+    user_id = models.IntegerField(db_index=True, null=True)
+    subuser_id = models.IntegerField(db_index=True, null=True)
+
+    @classmethod
+    def get_current_max_position(cls, parent_id=None):
+        if parent_id:
+            queryset = cls.objects.filter(parent=parent_id).order_by("position")
+        else:
+            queryset = cls.objects.filter(parent=None).order_by("position")
+        if not queryset:
+            return
+        position = queryset.last().position
+        return position
+
+    class Meta:
+        abstract = True
