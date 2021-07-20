@@ -1,1 +1,1 @@
-from ._content import BasicContentModel
+from ._content import BasicContentModel, BaseCommonModel

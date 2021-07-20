@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from epub.core.models import BasicContentModel
 from epub.apps.epub_categories.models.category import Category
+from epub.apps.epub_folders.models.folder import Folder
 from epub.apps.epub_labels.models import LabelMixin
 
 from model_utils import FieldTracker
@@ -19,3 +20,4 @@ class Book(LabelMixin, BasicContentModel):
     categories = models.ManyToManyField(
         Category, related_name="book_set", default=models.CASCADE
     )
+    folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True)

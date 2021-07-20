@@ -9,6 +9,7 @@ from epub.core.http.renderer import JSRenderer
 from books.models import Book
 from books.serializers import BookListSerializer
 from epub.apps.epub_categories.views.filters import ContentCategoryFilterBackend
+from epub.apps.epub_folders.views.filters import ContentFolderFilterBackend
 
 
 class JSView(APIView):
@@ -21,6 +22,10 @@ class JSView(APIView):
 class BookListAPIView(generics.ListAPIView):
     serializer_class = BookListSerializer
     queryset = Book.objects.all()
-    filter_backends = [ContentCategoryFilterBackend, LabelFilter]
+    filter_backends = [
+        ContentCategoryFilterBackend,
+        ContentFolderFilterBackend,
+        LabelFilter,
+    ]
 
     label_linked_app = "cbt"
