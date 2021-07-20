@@ -29,4 +29,18 @@ urlpatterns = [
             "user_filter": ["user_id", "subuser_id"],
         },
     ),
+    # 为了验证单元测试 数据类型不存在的情况
+    re_path(
+        "folders_for_test/",
+        include(
+            ("epub.apps.epub_folders.urls", "epub_folders"),
+            namespace="epub_folders_test",
+        ),
+        {
+            "folder_type": "h5",
+            "app_name": "books",
+            "model_name": "Book_temp",
+            "user_filter": ["user_id", "subuser_id"],
+        },
+    ),
 ]

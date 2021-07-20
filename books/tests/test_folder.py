@@ -200,7 +200,7 @@ class TestBookFolder(TestCase):
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
         )
-        content_ids = [book1.id, book2.id]
+        content_ids = [book1.id, book2.id, 3]
         folder_id = folder1.id
         url = reverse("book:epub_folders:folder_batch_api", kwargs={"book_type": "h5"})
         self.client.post(
@@ -212,6 +212,35 @@ class TestBookFolder(TestCase):
         book2 = Book.objects.get(title="book2", user=test_user)
         self.assertEqual(book1.folder_id, folder_id)
         self.assertEqual(book2.folder_id, folder_id)
+
+    def test_batch_folder_exception(self):
+        test_user = User.objects.create_user(username="test")
+        book1 = Book.objects.create(title="book1", user=test_user)
+        book2 = Book.objects.create(title="book2", user=test_user)
+        folder1 = Folder.objects.create(
+            title="folder1", user_id=1, subuser_id=1, folder_type="h5"
+        )
+        content_ids = [book1.id, book2.id]
+        folder_id = folder1.id
+        # 检测app或者model不存在的情况
+        url = reverse(
+            "book:epub_folders_test:folder_batch_api", kwargs={"book_type": "h5"}
+        )
+        res = self.client.post(
+            url,
+            data={"content_ids": content_ids, "folder_id": folder_id},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 400)
+
+        # 检测folder_id不存在的情况
+        url = reverse("book:epub_folders:folder_batch_api", kwargs={"book_type": "h5"})
+        res = self.client.post(
+            url,
+            data={"content_ids": content_ids, "folder_id": 2},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 400)
 
     def test_filter_book_by_folder(self):
         test = User.objects.create_user(username="test")
@@ -239,7 +268,7 @@ class TestBookFolder(TestCase):
         self.assertEqual(results[0].get("id"), book1.id)
         self.assertEqual(results[1].get("id"), book2.id)
 
-        res2 = self.client.get(url, data={"folder_id": [folder1.id, folder2.id]})
+        res2 = self.client.get(url, data={"folder_id": [folder1.id, folder2.id, 3]})
         self.assertEqual(res2.status_code, 200)
         results2 = res2.data.get("data").get("results")
         self.assertEqual(len(results2), 3)
