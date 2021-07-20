@@ -237,7 +237,7 @@ class TestBookFolder(TestCase):
         url = reverse("book:epub_folders:folder_batch_api", kwargs={"book_type": "h5"})
         res = self.client.post(
             url,
-            data={"content_ids": content_ids, "folder_id": 2},
+            data={"content_ids": content_ids, "folder_id": 100},
             content_type="application/json",
         )
         self.assertEqual(res.status_code, 400)
