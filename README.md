@@ -1,5 +1,8 @@
 # epub-python-core
 
+[![django_action](https://github.com/21epub/epub-python-core/actions/workflows/django.yml/badge.svg)](https://github.com/21epub/epub-python-core/actions)
+[![codecov](https://codecov.io/gh/21epub/epub-python-core/branch/master/graph/badge.svg?token=f6brEueSJ1)](https://codecov.io/gh/21epub/epub-python-core)
+
 
 公司项目基础库
 
