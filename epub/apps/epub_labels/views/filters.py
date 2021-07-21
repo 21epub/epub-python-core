@@ -13,9 +13,12 @@ class LabelFilter(BaseFilterBackend):
         )
         label_linked_app = getattr(view, "label_linked_app")
 
+        label_using_db = getattr(view, "label_using_db", "default")
         label_field = getattr(view, "label_field", "label")
         filter_mappings = AppLabel.get_filter_mappings(
-            linked_app=label_linked_app, jsonfield_name=label_field
+            linked_app=label_linked_app,
+            jsonfield_name=label_field,
+            label_using_db=label_using_db,
         )
 
         label_filter = {}

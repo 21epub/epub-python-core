@@ -89,9 +89,15 @@ class AppLabel(models.Model):
     linked_app = models.CharField(max_length=15, db_index=True)
 
     @classmethod
-    def get_filter_mappings(cls, linked_app: str, jsonfield_name=None) -> dict:
+    def get_filter_mappings(
+        cls, linked_app: str, jsonfield_name=None, label_using_db="default"
+    ) -> dict:
         mapppings = {}
-        applabels = cls.objects.prefetch_related("label").filter(linked_app=linked_app)
+        applabels = (
+            cls.objects.using(label_using_db)
+            .prefetch_related("label")
+            .filter(linked_app=linked_app)
+        )
         for row in applabels:
             if jsonfield_name:
                 mapppings[row.label.cid] = {
