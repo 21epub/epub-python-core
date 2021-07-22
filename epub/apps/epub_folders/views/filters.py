@@ -5,7 +5,8 @@ from epub.apps.epub_folders.models.folder import Folder
 
 class ContentFolderFilterBackend(BaseFilterBackend):
     def get_filter_params(self, request: Request, view):
-        filter_folder_ids = request.query_params.getlist("folder_id")
+        folder_filter_kwarg = getattr(view, "folder_filter_kwarg", "folder_id")
+        filter_folder_ids = request.query_params.getlist(folder_filter_kwarg)
         return filter_folder_ids
 
     def filter_queryset(self, request, queryset, view):
