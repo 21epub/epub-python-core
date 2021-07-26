@@ -19,7 +19,9 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         return user_id, subuser_id
 
     def validate(self, attrs):
-        parent_id = self.initial_data.get("parent")
+        parent_id = self.initial_data.get(
+            "parent", self.initial_data.get("parent_id", None)
+        )
         model_name = self.Meta.model
         if parent_id:
             try:

@@ -19,7 +19,7 @@ class ContentFolderFilterBackend(BaseFilterBackend):
             try:
                 folder = Folder.objects.get(id=folder_id)
                 descendants = folder.get_descendants(include_self=True)
-            except Folder.DoesNotExist:
+            except (Folder.DoesNotExist, ValueError):
                 continue
             filter_list.extend([descendant_info.id for descendant_info in descendants])
         # 去重
