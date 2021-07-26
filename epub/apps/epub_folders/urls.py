@@ -13,6 +13,6 @@ urlpatterns = [
         FolderRetrieveUpdateDestroyAPIView.as_view(),
         name="folder_retrieve_update_destroy_api",
     ),
-    path("sort/", FolderSortAPIView.as_view(), name="folder_sort_api"),
-    path("batch/", FolderBatchAPIView.as_view(), name="folder_batch_api"),
+    path("sort", FolderSortAPIView.as_view(), name="folder_sort_api"),
+    path("batch", FolderBatchAPIView.as_view(), name="folder_batch_api"),
 ]

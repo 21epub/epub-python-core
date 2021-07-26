@@ -13,6 +13,6 @@ urlpatterns = [
         CategoryRetrieveUpdateDestroyAPIView.as_view(),
         name="category_retrieve_update_destroy_api",
     ),
-    path("sort/", CategorySortAPIView.as_view(), name="category_sort_api"),
-    path("batch/", CategoryBatchAPIView.as_view(), name="category_batch_api"),
+    path("sort", CategorySortAPIView.as_view(), name="category_sort_api"),
+    path("batch", CategoryBatchAPIView.as_view(), name="category_batch_api"),
 ]
