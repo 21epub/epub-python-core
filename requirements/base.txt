@@ -9,4 +9,3 @@ mongoengine==0.22.1
 requests==2.23.0
 django-filter==2.4.0
 transitions
-django-mptt
