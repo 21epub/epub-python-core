@@ -19,6 +19,10 @@ from django.urls import path, include, re_path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
+        "v3/api/logs/",
+        include(("epub.apps.epub_logs.urls", "epub_logs"), namespace="log_api_url"),
+    ),
+    path(
         "v3/api/labels/",
         include(
             ("epub.apps.epub_labels.urls", "epub_labels"), namespace="label_api_url"

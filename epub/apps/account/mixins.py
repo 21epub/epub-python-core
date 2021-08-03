@@ -12,14 +12,24 @@ def get_user_and_subuser_id_nickname(request):
     return user_id, subuser_id, nickname
 
 
-class SetCreatorMixin:
+class GetUserViewMixin:
     def get_user(self):
-        request = self.context.get("request")
+        request = self.request
         if request and request.user.is_authenticated:
             return request.user
         else:
             return None
 
+    def get_user_subuser(self) -> (str, str, str):
+        request = self.request
+        if request:
+            user_id, subuser_id, nickname = get_user_and_subuser_id_nickname(request)
+            return user_id, subuser_id, nickname
+        else:
+            return None, None, None
+
+
+class SetCreatorMixin:
     def get_user_subuser(self) -> (str, str, str):
         request = self.context.get("request")
         if request:
