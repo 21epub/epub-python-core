@@ -44,7 +44,7 @@ class LogEntry(CreatorModelMixin, models.Model):
     action_name = models.CharField(_("action name"), max_length=100)
 
     object_type = models.CharField(max_length=100)
-    object_id = models.TextField(_("object id"), blank=True, null=True)
+    object_id = models.CharField(_("object id"), max_length=100, blank=True, null=True)
     object_repr = models.CharField(_("object repr"), max_length=200)
 
     # change_message is either a string or a JSON structure
