@@ -10,9 +10,9 @@ User = get_user_model()
 
 class LogTestCase(TestCase):
     def setUp(self) -> None:
-        test = User.objects.create_user(username="test")
-        Book.objects.create(title="yunwen", user=test)
-        Book.objects.create(title="shuxue", user=test)
+        self.test = User.objects.create_user(username="test")
+        Book.objects.create(title="yunwen", user=self.test)
+        Book.objects.create(title="shuxue", user=self.test)
 
     def test_log(self):
 
@@ -24,7 +24,7 @@ class LogTestCase(TestCase):
 
         url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
 
-        data = {"title": "title", "user": 1}
+        data = {"title": "title", "user": self.test.id}
 
         res = self.client.post(url, data=data)
         self.assertEqual(res.status_code, 201)
