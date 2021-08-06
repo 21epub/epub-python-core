@@ -11,6 +11,7 @@ class LogEntrySerializer(ModelSerializer):
             "action_ip",
             "action_name",
             "nickname",
+            "object_type",
             "object_repr",
             "change_message",
         ]
