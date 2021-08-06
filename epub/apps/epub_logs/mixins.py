@@ -53,11 +53,21 @@ class LoggingViewMixin(GetUserViewMixin):
 class LoggingViewSetMixin(LoggingViewMixin):
     def perform_create(self, serializer):
         super().perform_create(serializer)
-        self.log(serializer.instance, action_type=LogEntry.ADDITION, action_name="新增")
+        instance = serializer.instance
+        if isinstance(instance, list):
+            for row in instance:
+                self.log(row, action_type=LogEntry.ADDITION, action_name="新增")
+        else:
+            self.log(instance, action_type=LogEntry.ADDITION, action_name="新增")
 
     def perform_update(self, serializer):
         super().perform_update(serializer)
-        self.log(serializer.instance, action_type=LogEntry.CHANGE, action_name="修改")
+        instance = serializer.instance
+        if isinstance(instance, list):
+            for row in instance:
+                self.log(row, action_type=LogEntry.CHANGE, action_name="修改")
+        else:
+            self.log(instance, action_type=LogEntry.CHANGE, action_name="修改")
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
