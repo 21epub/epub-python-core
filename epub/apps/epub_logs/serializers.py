@@ -7,6 +7,7 @@ class LogEntrySerializer(ModelSerializer):
     class Meta:
         model = LogEntry
         fields = [
+            "id",
             "action_time",
             "action_ip",
             "action_name",
