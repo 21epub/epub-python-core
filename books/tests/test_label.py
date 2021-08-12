@@ -109,6 +109,11 @@ class LabelContentDB(TestCase):
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
 
+        url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
+        query_params = {"height": "error type"}
+        res = self.client.get(url, data=query_params)
+        self.assertEqual(res.status_code, 400)
+
         query_params = {"module": "engine4"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
