@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
 
 from epub.apps.epub_labels.models import AppLabel
@@ -28,7 +29,10 @@ class LabelFilter(BaseFilterBackend):
                 lookup_value = map_lookup_type["lookup"]
                 value_type = map_lookup_type["value_type"]
                 if value_type == Label.VALUE_TYPE_CHOICES.number:
-                    label_filter[lookup_value] = float(label_value)
+                    try:
+                        label_filter[lookup_value] = float(label_value)
+                    except ValueError:
+                        raise ValidationError()
                 else:
                     label_filter[lookup_value] = label_value
         return label_filter
