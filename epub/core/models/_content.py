@@ -5,7 +5,7 @@ from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 
 from model_utils import Choices
-from model_utils.fields import StatusField, MonitorField
+from model_utils.fields import MonitorField
 from model_utils.managers import SoftDeletableQuerySetMixin, QueryManager
 from model_utils.models import TimeStampedModel, _field_exists
 from mptt.models import MPTTModel, TreeForeignKey
@@ -39,19 +39,19 @@ class BasicContentModel(TimeStampedModel):
        not_deleted_books = Book.objects.all()
        all_books = Book.all_objects.all()
     Demo2: status change
-       book.status = Book.STATUS.draft
-       book.status = Book.STATUS.published
+       book.status = Book.STATUS_CHOICES.draft
+       book.status = Book.STATUS_CHOICES.published
     Demo3: status_display
-        status_display = Article.STATUS[article.status]
+        status_display = Article.STATUS_CHOICES[article.status]
     注意：
         1. 子类如果需要替换objects，自定义的Manager需要继承BasicContentManager
         2. track=FieldTracker 不能在基类中定义，需要在子类中实现时定义：
         https://django-model-utils.readthedocs.io/en/latest/utilities.html#field-tracker
     """
 
-    STATUS = Choices((0, "draft", _("草稿")), (1, "published", _("已发布")))
+    STATUS_CHOICES = Choices((0, "draft", _("草稿")), (1, "published", _("已发布")))
 
-    status = models.IntegerField(choices=STATUS, default=STATUS.draft)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_CHOICES.draft)
     status_changed = MonitorField(_("status changed"), monitor="status")
     is_removed = models.BooleanField(default=False)
 
@@ -94,7 +94,7 @@ def add_status_query_managers(sender, **kwargs):
         return
 
     default_manager = sender._meta.default_manager
-    _status = getattr(sender, "STATUS")
+    _status = getattr(sender, "STATUS_CHOICES")
     if _status:
         for value, key, display in _status._triples:
             if _field_exists(sender, key):

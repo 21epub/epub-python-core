@@ -26,12 +26,12 @@ class BookTestCase(TestCase):
     def test_status_change(self):
         yunwen = Book.objects.get(title="yunwen")
         self.assertEqual(yunwen.is_removed, False)
-        self.assertEqual(yunwen.status, Book.STATUS.draft)
+        self.assertEqual(yunwen.status, Book.STATUS_CHOICES.draft)
         self.assertEqual(Book.draft.all().count(), 2)
         self.assertEqual(Book.published.all().count(), 0)
-        yunwen.status = Book.STATUS.published
+        yunwen.status = Book.STATUS_CHOICES.published
         yunwen.save()
-        self.assertEqual(yunwen.status, Book.STATUS.published)
+        self.assertEqual(yunwen.status, Book.STATUS_CHOICES.published)
         self.assertEqual(Book.draft.all().count(), 1)
         self.assertEqual(Book.published.all().count(), 1)
 
