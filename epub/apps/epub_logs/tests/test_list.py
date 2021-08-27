@@ -111,17 +111,17 @@ class LogTestCase(TestCase):
         self.assertEqual(res.json()["data"]["sum"], 2)
 
         url = reverse("log_api_url:log-admin-list")
-        res = self.client.get(url, data={"before": "2020-01-01"})
+        res = self.client.get(url, data={"end_time": "2020-01-01"})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["data"]["sum"], 0)
 
         url = reverse("log_api_url:log-admin-list")
-        res = self.client.get(url, data={"type": "h5"})
+        res = self.client.get(url, data={"object_type": "h5"})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["data"]["sum"], 3)
 
         url = reverse("log_api_url:log-admin-list")
-        res = self.client.get(url, data={"type": "cbt"})
+        res = self.client.get(url, data={"object_type": "cbt"})
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["data"]["sum"], 1)
 
