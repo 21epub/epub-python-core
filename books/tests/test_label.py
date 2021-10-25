@@ -105,27 +105,27 @@ class LabelContentDB(TestCase):
         self.create_label()
 
         url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
-        query_params = {"height": 102}
+        query_params = {"label.height": 102}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
 
         url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
-        query_params = {"height": "error type"}
+        query_params = {"label.height": "error type"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.status_code, 400)
 
-        query_params = {"module": "engine4"}
+        query_params = {"label.module": "engine4"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
 
-        query_params = {"module": "engine"}
+        query_params = {"label.module": "engine"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
 
-        query_params = {"module": "engine4", "height": 103}
+        query_params = {"label.module": "engine4", "label.height": 103}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 0)
 
-        query_params = {"tags": "one"}
+        query_params = {"label.tags": "one"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 2)

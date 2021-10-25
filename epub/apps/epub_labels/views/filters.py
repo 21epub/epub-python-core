@@ -4,6 +4,8 @@ from rest_framework.filters import BaseFilterBackend
 from epub.apps.epub_labels.models import AppLabel
 from epub.apps.epub_labels.models import Label
 
+PREFIX_FILTER_CONSTANT = "label."
+
 
 class LabelFilter(BaseFilterBackend):
     def get_filter_params(self, request, view):
@@ -24,7 +26,9 @@ class LabelFilter(BaseFilterBackend):
 
         label_filter = {}
         for label_param, map_lookup_type in filter_mappings.items():
-            label_value = request.query_params.get(label_param, None)
+            label_value = request.query_params.get(
+                PREFIX_FILTER_CONSTANT + label_param, None
+            )
             if label_value:
                 lookup_value = map_lookup_type["lookup"]
                 value_type = map_lookup_type["value_type"]
