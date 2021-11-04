@@ -6,6 +6,7 @@ from epub.apps.epub_remarks.models import Remark
 
 class RemarkSerializer(serializers.ModelSerializer):
     usernickname = serializers.SerializerMethodField(read_only=True)
+    file = serializers.URLField(source="get_file_url", read_only=True)
 
     class Meta:
         model = Remark
