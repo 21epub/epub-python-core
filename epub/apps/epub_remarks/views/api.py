@@ -17,18 +17,24 @@ class RemarkListCreateAPIView(
     queryset = Remark.objects.all()
 
     def get_queryset(self):
-
-        app_name = self.kwargs.get("app_name")
-        model_name = self.kwargs.get("model_name")
-
-        try:
-            app_model = apps.get_model(app_name, model_name)
-        except LookupError:
-            raise ValidationError({"detail": ["数据类型不存在."]})
-
         id_list = self.get_belonged_to_obj_ids()
-        ct = ContentType.objects.get(model=model_name, app_label=app_name)
-        remarks = Remark.objects.filter(content_type=ct, object_id__in=id_list)
+
+        app_name = getattr(self, "app_name")
+        model_name = getattr(self, "model_name")
+
+        if app_name and model_name:
+            try:
+                app_model = apps.get_model(app_name, model_name)
+            except LookupError:
+                raise ValidationError({"detail": ["数据类型不存在."]})
+
+            ct = ContentType.objects.get(model=model_name, app_label=app_name)
+            remarks = Remark.objects.filter(content_type=ct, object_id__in=id_list)
+        else:
+            raise NotImplementedError(
+                " View 内必须指定 model_name:创建备注对象的 Model; app_name:创建备注对象 Model 的 app_label "
+            )
+
         return remarks
 
     def get_belonged_to_obj_ids(self):

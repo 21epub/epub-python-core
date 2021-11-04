@@ -1,7 +1,10 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 # Create your models here.
 from django.contrib.auth import get_user_model
+
+from epub.apps.epub_remarks.models import Remark
 from epub.core.models import BasicContentModel
 from epub.apps.epub_categories.models.category import Category
 from epub.apps.epub_folders.models.folder import Folder
@@ -21,3 +24,4 @@ class Book(LabelMixin, BasicContentModel):
         Category, related_name="book_set", default=models.CASCADE
     )
     folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True)
+    remarks = GenericRelation(Remark)

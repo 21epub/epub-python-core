@@ -6,6 +6,7 @@ from rest_framework import generics
 # Create your views here.
 from epub.apps.epub_labels.views.filters import LabelFilter
 from epub.apps.epub_logs.mixins import LoggingViewSetMixin
+from epub.apps.epub_remarks.views.api import RemarkListCreateAPIView
 from epub.core.http.renderer import JSRenderer
 from books.models import Book
 from books.serializers import BookListSerializer
@@ -30,3 +31,18 @@ class BookListAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
     ]
 
     label_linked_app = "cbt"
+
+
+class BookRemarkListCreateAPIView(RemarkListCreateAPIView):
+    app_name = "books"
+    model_name = "book"
+
+    def get_belonged_obj(self):
+        pk = self.kwargs.get("pk")
+        book = Book.objects.get(pk=pk)
+        return book
+
+    def get_belonged_to_obj_ids(self):
+        pk = self.kwargs.get("pk")
+        book_ids = Book.objects.filter(pk__in=[pk]).values_list("id", flat=True)
+        return book_ids

@@ -1,6 +1,6 @@
 from django.urls import re_path, include, path
-from books.views import BookListAPIView
-
+from books.views import BookListAPIView, BookRemarkListCreateAPIView
+from epub.apps.epub_remarks.views.api import RemarkRetrieveDestroyAPIView
 
 urlpatterns = [
     path("books/", BookListAPIView.as_view(), name="book_list_api"),
@@ -43,4 +43,8 @@ urlpatterns = [
             "user_filter": ["user_id", "subuser_id"],
         },
     ),
+    path("books/<int:pk>/remarks", BookRemarkListCreateAPIView.as_view(), name="book_remark_list_create_api"),
+    # path("books/<int:pk>/remarks/<int:remark_id>", RemarkRetrieveDestroyAPIView.as_view(), name="book_remark_single_api")
+    path("books/<int:pk>/remarks/",
+         include(("epub.apps.epub_remarks.urls.api", "epub_remarks"), namespace="book_remarks"))
 ]
