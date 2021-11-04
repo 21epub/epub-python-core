@@ -6,16 +6,13 @@ from epub.apps.epub_remarks.models import Remark
 
 class RemarkSerializer(serializers.ModelSerializer):
     usernickname = serializers.SerializerMethodField(read_only=True)
-    file = serializers.URLField(source="get_file_url", read_only=True)
 
     class Meta:
         model = Remark
-        # fields = ["id", "content", "user_id", "usernickname", "created"]
-        exclude = ["object_id", "content_type"]
+        fields = ["id", "content", "user_id", "usernickname", "created"]
         extra_kwargs = {
             "user_id": {"read_only": True},
             "created": {"read_only": True},
-            "title": {"read_only": True, "required": False},
         }
 
     def get_usernickname(self, obj):
