@@ -37,12 +37,12 @@ class BookRemarkListCreateAPIView(RemarkListCreateAPIView):
     app_name = "books"
     model_name = "book"
 
-    def get_belonged_obj(self):
+    def create_remark_for_obj(self):
         pk = self.kwargs.get("pk")
         book = Book.objects.get(pk=pk)
         return book
 
-    def get_belonged_to_obj_ids(self):
+    def list_remark_for_obj_ids(self):
         pk = self.kwargs.get("pk")
         book_ids = Book.objects.filter(pk__in=[pk]).values_list("id", flat=True)
         return book_ids

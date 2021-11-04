@@ -25,7 +25,7 @@ class RemarkSerializer(serializers.ModelSerializer):
         validated_data["subuser_id"] = subuser_id
         validated_data["nickname"] = nickname
 
-        obj = self.context.get("view").kwargs.get("belonged_obj")
+        obj = self.context.get("view").create_remark_for_obj()
 
         remark = obj.remarks.create(**validated_data)
         return remark

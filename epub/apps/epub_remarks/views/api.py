@@ -17,7 +17,6 @@ class RemarkListCreateAPIView(
     queryset = Remark.objects.all()
 
     def get_queryset(self):
-        id_list = self.get_belonged_to_obj_ids()
 
         app_name = getattr(self, "app_name")
         model_name = getattr(self, "model_name")
@@ -28,6 +27,7 @@ class RemarkListCreateAPIView(
             except LookupError:
                 raise ValidationError({"detail": ["数据类型不存在."]})
 
+            id_list = self.list_remark_for_obj_ids()
             ct = ContentType.objects.get(model=model_name, app_label=app_name)
             remarks = Remark.objects.filter(content_type=ct, object_id__in=id_list)
         else:
@@ -37,21 +37,15 @@ class RemarkListCreateAPIView(
 
         return remarks
 
-    def get_belonged_to_obj_ids(self):
+    def list_remark_for_obj_ids(self):
         raise NotImplementedError(
-            " 必须实现 get_belonged_to_obj_ids() 方法，以 return [id1 ,id2, ...] 的形式提供要查询备注的 instance 的 ID ，"
+            " 必须实现 list_remark_for_obj_ids() 方法，以 return [id1 ,id2, ...] 的形式提供要查询备注的 instance 的 ID ，"
         )
 
-    def get_belonged_obj(self):
+    def create_remark_for_obj(self):
         raise NotImplementedError(
-            " 必须实现 get_belonged_obj() 方法，以 return instance 的形式提供要创建备注的 instance ，"
+            " 必须实现 create_remark_for_obj() 方法，以 return instance 的形式提供要创建备注的 instance ，"
         )
-
-    def create(self, request, *args, **kwargs):
-        instance = self.get_belonged_obj()
-        self.kwargs["belonged_obj"] = instance
-
-        return super(RemarkListCreateAPIView, self).create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

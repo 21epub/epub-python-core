@@ -43,7 +43,7 @@ urlpatterns = [
             "user_filter": ["user_id", "subuser_id"],
         },
     ),
-    path("books/<int:pk>/remarks", BookRemarkListCreateAPIView.as_view(), name="book_remark_list_create_api"),
+    path("books/<int:pk>/remarks/", BookRemarkListCreateAPIView.as_view(), name="book_remark_list_create_api"),
     # path("books/<int:pk>/remarks/<int:remark_id>", RemarkRetrieveDestroyAPIView.as_view(), name="book_remark_single_api")
     path("books/<int:pk>/remarks/",
          include(("epub.apps.epub_remarks.urls.api", "epub_remarks"), namespace="book_remarks"))
