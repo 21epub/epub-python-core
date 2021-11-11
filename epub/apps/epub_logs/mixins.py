@@ -41,7 +41,7 @@ class LoggingViewMixin(GetUserViewMixin):
             nickname=nickname,
             object_type=object_type,
             object_id=instance.pk,
-            object_repr=str(instance),
+            object_repr=str(instance)[:200],
             action_ip=get_client_ip(self.request),
             action_type=action_type,
             action_name=action_name,

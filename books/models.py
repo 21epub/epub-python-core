@@ -25,3 +25,6 @@ class Book(LabelMixin, BasicContentModel):
     )
     folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True)
     remarks = GenericRelation(Remark)
+
+    def __str__(self):
+        return self.title

@@ -24,9 +24,12 @@ class LogTestCase(TestCase):
 
         url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
 
-        data = {"title": "title", "user": self.test.id}
+        title = "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+        data = {"title": title, "user": self.test.id}
 
         res = self.client.post(url, data=data)
         self.assertEqual(res.status_code, 201)
 
         self.assertEqual(LogEntry.objects.count(), 1)
+        self.assertEqual(len(LogEntry.objects.first().object_repr), 200)
+        self.assertEqual(len(title), 210)
