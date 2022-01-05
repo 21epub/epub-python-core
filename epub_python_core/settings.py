@@ -59,6 +59,9 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_AUTHENTICATION_CLASSES": ("books.authentication.MockUserAuthentication",),
+    'DEFAULT_PERMISSION_CLASSES': [
+        "epub.apps.epub_permission.permissions.CheckUserPermission",
+    ],
 }
 
 ROOT_URLCONF = "epub_python_core.urls"

@@ -21,7 +21,7 @@ class JSView(APIView):
         return Response("var js=1;", content_type="application/javascript")
 
 
-class BookListAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
+class BookListCreateAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
     serializer_class = BookListSerializer
     queryset = Book.objects.all()
     filter_backends = [
@@ -29,6 +29,10 @@ class BookListAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
         ContentFolderFilterBackend,
         LabelFilter,
     ]
+
+    permissions = {
+        "GET": "{module_type}.list"
+    }
 
     label_linked_app = "cbt"
 

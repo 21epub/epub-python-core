@@ -61,6 +61,20 @@ class User(object):
 
 
 class MockUserAuthentication(BaseAuthentication):
+    default_perms = [
+        {"code": "cbt.list"},
+        {"code": "h5.list"},
+        {"code": "h5.create"},
+        {"code": "h5.update"},
+        {"code": "h5.delete"},
+    ]
+    add_perms = [
+        {"code": "h5.list.show_all_user_contents"},
+        {"code": "h5.update.show_all_user_contents"},
+        {"code": "h5.delete.show_all_user_contents"},
+    ]
+    perms = default_perms + add_perms
+
     def authenticate(self, request):
         return (
             User(
@@ -70,6 +84,7 @@ class MockUserAuthentication(BaseAuthentication):
                     "id": 1,
                     "nickname": "test1",
                     "is_superuser": False,
+                    "perms": self.perms,
                 },
             ),
             "token_xxxx",
