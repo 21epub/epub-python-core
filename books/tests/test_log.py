@@ -11,8 +11,8 @@ User = get_user_model()
 class LogTestCase(TestCase):
     def setUp(self) -> None:
         self.test = User.objects.create_user(username="test")
-        Book.objects.create(title="yunwen", user=self.test)
-        Book.objects.create(title="shuxue", user=self.test)
+        Book.objects.create(title="yunwen", user_id=self.test.id)
+        Book.objects.create(title="shuxue", user_id=self.test.id)
 
     def test_log(self):
 

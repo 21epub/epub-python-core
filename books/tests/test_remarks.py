@@ -12,7 +12,7 @@ class TestBookRemarks(TestCase):
 
     def setUp(self) -> None:
         self.test_user = User.objects.create_user(username="test")
-        self.book = Book.objects.create(title="book1", user=self.test_user)
+        self.book = Book.objects.create(title="book1", user_id=self.test_user.id)
 
     def test_create_book_remarks(self):
         data1 = {"content": "test book remark"}

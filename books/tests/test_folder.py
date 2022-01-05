@@ -195,8 +195,8 @@ class TestBookFolder(TestCase):
 
     def test_batch_folder(self):
         test_user = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test_user)
-        book2 = Book.objects.create(title="book2", user=test_user)
+        book1 = Book.objects.create(title="book1", user_id=test_user.id)
+        book2 = Book.objects.create(title="book2", user_id=test_user.id)
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
         )
@@ -208,15 +208,15 @@ class TestBookFolder(TestCase):
             data={"content_ids": content_ids, "folder_id": folder_id},
             content_type="application/json",
         )
-        book1 = Book.objects.get(title="book1", user=test_user)
-        book2 = Book.objects.get(title="book2", user=test_user)
+        book1 = Book.objects.get(title="book1", user_id=test_user.id)
+        book2 = Book.objects.get(title="book2", user_id=test_user.id)
         self.assertEqual(book1.folder_id, folder_id)
         self.assertEqual(book2.folder_id, folder_id)
 
     def test_batch_folder_exception(self):
         test_user = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test_user)
-        book2 = Book.objects.create(title="book2", user=test_user)
+        book1 = Book.objects.create(title="book1", user_id=test_user.id)
+        book2 = Book.objects.create(title="book2", user_id=test_user.id)
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
         )
@@ -244,10 +244,10 @@ class TestBookFolder(TestCase):
 
     def test_filter_book_by_folder(self):
         test = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test)
-        book2 = Book.objects.create(title="book2", user=test)
-        book3 = Book.objects.create(title="book3", user=test)
-        Book.objects.create(title="book4", user=test)
+        book1 = Book.objects.create(title="book1", user_id=test.id)
+        book2 = Book.objects.create(title="book2", user_id=test.id)
+        book3 = Book.objects.create(title="book3", user_id=test.id)
+        Book.objects.create(title="book4", user_id=test.id)
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
         )

@@ -11,8 +11,8 @@ User = get_user_model()
 class BookTestCase(TestCase):
     def setUp(self):
         test = User.objects.create_user(username="test")
-        Book.objects.create(title="yunwen", user=test)
-        Book.objects.create(title="shuxue", user=test)
+        Book.objects.create(title="yunwen", user_id=test.id)
+        Book.objects.create(title="shuxue", user_id=test.id)
 
     def test_book_delete(self):
         """Animals that can speak are correctly identified"""

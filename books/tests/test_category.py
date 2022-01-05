@@ -199,8 +199,8 @@ class TestBookCategory(TestCase):
 
     def test_batch_category(self):
         test_user = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test_user)
-        book2 = Book.objects.create(title="book2", user=test_user)
+        book1 = Book.objects.create(title="book1", user_id=test_user.id)
+        book2 = Book.objects.create(title="book2", user_id=test_user.id)
         category1 = Category.objects.create(
             title="category1", user_id=1, subuser_id=1, category_type="h5"
         )
@@ -231,10 +231,10 @@ class TestBookCategory(TestCase):
 
     def test_filter_book_by_category(self):
         test = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test)
-        book2 = Book.objects.create(title="book2", user=test)
-        book3 = Book.objects.create(title="book3", user=test)
-        Book.objects.create(title="book4", user=test)
+        book1 = Book.objects.create(title="book1", user_id=test.id)
+        book2 = Book.objects.create(title="book2", user_id=test.id)
+        book3 = Book.objects.create(title="book3", user_id=test.id)
+        Book.objects.create(title="book4", user_id=test.id)
         category1 = Category.objects.create(
             title="category1", user_id=1, subuser_id=1, category_type="h5"
         )

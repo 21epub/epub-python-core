@@ -18,13 +18,15 @@ from model_utils import FieldTracker
 class Book(LabelMixin, BasicContentModel):
     title = models.CharField(max_length=255, blank=False, db_index=True)
     cover = models.FileField()
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    # user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     tracker = FieldTracker()
     categories = models.ManyToManyField(
         Category, related_name="book_set", default=models.CASCADE
     )
     folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True)
     remarks = GenericRelation(Remark)
+    subuser_id = models.IntegerField(default=None, null=True)
+    user_id = models.IntegerField(default=None, null=True)
 
     def __str__(self):
         return self.title

@@ -31,7 +31,8 @@ class BookListCreateAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
     ]
 
     permissions = {
-        "GET": "{module_type}.list"
+        "GET": "{module_type}.list",
+        "POST": "{module_type}.create"
     }
 
     label_linked_app = "cbt"
