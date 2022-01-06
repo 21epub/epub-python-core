@@ -73,6 +73,7 @@ class MockUserAuthentication(BaseAuthentication):
         {"code": "h5.list.show_all_user_contents"},
         {"code": "h5.update.show_all_user_contents"},
         {"code": "h5.delete.show_all_user_contents"},
+        {"code": "admin.label.menu"},
     ]
     perms = default_perms + add_perms
 
