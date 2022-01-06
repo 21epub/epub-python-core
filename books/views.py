@@ -32,10 +32,21 @@ class BookListCreateAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
 
     permissions = {
         "GET": "{module_type}.list",
-        "POST": "{module_type}.create"
+        "POST": "{module_type}.create",
     }
 
     label_linked_app = "cbt"
+
+
+class BookRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BookListSerializer
+    queryset = Book.objects.all()
+
+    permissions = {
+        "GET": "{module_type}.detail",
+        "PATCH": "{module_type}.update",
+        "DELETE": "{module_type}.delete",
+    }
 
 
 class BookRemarkListCreateAPIView(RemarkListCreateAPIView):

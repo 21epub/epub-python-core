@@ -1,9 +1,10 @@
 from django.urls import re_path, include, path
-from books.views import BookListCreateAPIView, BookRemarkListCreateAPIView
+from books.views import BookListCreateAPIView, BookRemarkListCreateAPIView, BookRetrieveUpdateDestroyAPIView
 from epub.apps.epub_remarks.views.api import RemarkRetrieveDestroyAPIView
 
 urlpatterns = [
     path("books/", BookListCreateAPIView.as_view(), name="book_list_api"),
+    path("books/<int:pk>", BookRetrieveUpdateDestroyAPIView.as_view(), name="book_single_api"),
     re_path(
         "categories/",
         include(

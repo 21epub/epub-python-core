@@ -1,9 +1,7 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-# Create your models here.
-from django.contrib.auth import get_user_model
-
+from epub.apps.epub_permission.mixins import ModulePermissionMixin
 from epub.apps.epub_remarks.models import Remark
 from epub.core.models import BasicContentModel
 from epub.apps.epub_categories.models.category import Category
@@ -12,10 +10,8 @@ from epub.apps.epub_labels.models import LabelMixin
 
 from model_utils import FieldTracker
 
-# Create your models here.
 
-
-class Book(LabelMixin, BasicContentModel):
+class Book(LabelMixin, ModulePermissionMixin, BasicContentModel):
     title = models.CharField(max_length=255, blank=False, db_index=True)
     cover = models.FileField()
     # user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

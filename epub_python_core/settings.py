@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "epub.apps.epub_folders",
     "epub.apps.epub_logs",
     "epub.apps.epub_remarks",
+    "epub.apps.epub_permission",
 ]
 
 MIDDLEWARE = [
@@ -60,7 +61,7 @@ REST_FRAMEWORK = {
     "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
     "DEFAULT_AUTHENTICATION_CLASSES": ("books.authentication.MockUserAuthentication",),
     'DEFAULT_PERMISSION_CLASSES': [
-        "epub.apps.epub_permission.permissions.CheckUserPermission",
+        "epub.apps.epub_permission.permissions.ModulePermission",
     ],
 }
 

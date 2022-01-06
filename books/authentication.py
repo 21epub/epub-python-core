@@ -63,6 +63,7 @@ class User(object):
 class MockUserAuthentication(BaseAuthentication):
     default_perms = [
         {"code": "cbt.list"},
+        {"code": "cbt.create"},
         {"code": "h5.list"},
         {"code": "h5.create"},
         {"code": "h5.update"},

@@ -56,3 +56,69 @@ class TestPermission(TestCase):
 
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
+
+    @patch("books.authentication.MockUserAuthentication.authenticate")
+    def test_book_detail_permission(self, mock_authenticate_user):
+        book = Book.objects.create(title="test", user_id=self.user_id, subuser_id=self.subuser_id)
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        url = reverse("book:book_single_api", kwargs={"book_type": "h5", "pk": book.id})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 403)
+
+        self.add_perms.append({"code": "h5.detail"})
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        result = res.json()
+        self.assertEqual(result["title"], book.title)
+        self.assertEqual(result["user_id"], book.user_id)
+        self.assertEqual(result["subuser_id"], book.subuser_id)
+
+        book.subuser_id = 2
+        book.save()
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 403)
+
+        self.add_perms.append({"code": "h5.detail.show_all_user_contents"})
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+    @patch("books.authentication.MockUserAuthentication.authenticate")
+    def test_book_update_permission(self, mock_authenticate_user):
+        book = Book.objects.create(title="test", user_id=self.user_id, subuser_id=self.subuser_id)
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        data = {
+            "title": "new_title"
+        }
+
+        url = reverse("book:book_single_api", kwargs={"book_type": "h5", "pk": book.id})
+        res = self.client.patch(url, data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 403)
+
+        self.add_perms.append({"code": "h5.update"})
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        res = self.client.patch(url, data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        result = res.json()
+        self.assertEqual(result["title"], "new_title")
+
+        book.subuser_id = 2
+        book.save()
+
+        res = self.client.patch(url, data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 403)
+
+        self.add_perms.append({"code": "h5.update.show_all_user_contents"})
+        mock_authenticate_user.return_value = (self.get_mock_user(), "token_xxxx")
+
+        res = self.client.patch(url, data=data, content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        result = res.json()
+        self.assertEqual(result["title"], "new_title")
+
