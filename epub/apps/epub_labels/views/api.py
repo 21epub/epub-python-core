@@ -15,7 +15,7 @@ class LableListAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     pagination_class = LargeResultsSetPagination
     permissions = {
         # "GET": ["admin.label.menu"],
-        "POST": ["admin.label.menu"],
+        "POST": "admin.label.menu",
     }
 
     def get_queryset(self):
@@ -49,7 +49,7 @@ class AppLabelListAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     pagination_class = LargeResultsSetPagination
     permissions = {
         # "GET": ["admin.label.menu"],
-        "POST": ["admin.label.menu"],
+        "POST": "admin.label.menu",
     }
 
     def get_serializer(self, *args, **kwargs):
