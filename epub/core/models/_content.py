@@ -131,11 +131,13 @@ class BaseCommonModel(MPTTModel):
     subuser_id = models.IntegerField(db_index=True, null=True)
 
     @classmethod
-    def get_current_max_position(cls, parent_id=None):
+    def get_current_max_position(cls, parent_id=None, user_id=None):
         if parent_id:
             queryset = cls.objects.filter(parent=parent_id).order_by("position")
         else:
-            queryset = cls.objects.filter(parent=None).order_by("position")
+            queryset = cls.objects.filter(parent=None, user_id=user_id).order_by(
+                "position"
+            )
         if not queryset:
             return
         position = queryset.last().position

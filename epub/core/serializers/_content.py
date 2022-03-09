@@ -23,9 +23,13 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
             "parent", self.initial_data.get("parent_id", None)
         )
         model_name = self.Meta.model
+        request = self.context.get("request")
+        user_id, _ = self.get_user_and_subuser_id(request)
         if parent_id:
             try:
-                position = model_name.get_current_max_position(parent_id=parent_id)
+                position = model_name.get_current_max_position(
+                    parent_id=parent_id, user_id=user_id
+                )
             except model_name.DoesNotExist:
                 raise Http404
             # 设置 parent
@@ -35,7 +39,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 raise Http404
             attrs["parent"] = obj
         else:
-            position = model_name.get_current_max_position()
+            position = model_name.get_current_max_position(user_id=user_id)
 
         # 设置 position
         if position:
