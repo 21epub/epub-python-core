@@ -12,10 +12,12 @@ from epub.apps.epub_folders.serializers.folder import (
 )
 from epub.apps.epub_folders.models.folder import Folder
 from epub.core.filters import CommonTypeFilterBackend, CommonUserFilterBackend
+from epub.core.http.paginations import LargeResultsSetPagination
 
 
 class FolderListCreateAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     serializer_class = FolderSerializer
+    pagination_class = LargeResultsSetPagination
     filter_backends = [CommonTypeFilterBackend, CommonUserFilterBackend]
 
     def get_queryset(self):
