@@ -148,11 +148,8 @@ class BaseCommonModel(Model):
         descendants = self.children.all()
 
         for descendant in descendants:
-            children = descendant.children.all()
-            if children:
-                ids = descendant.get_descendants()
-                descendant_list.extend(ids)
-            descendant_list.append(descendant.id)
+            ids = descendant.get_descendants()
+            descendant_list.extend(ids)
 
         descendant_list.append(self.id)
         return list(set(descendant_list))
