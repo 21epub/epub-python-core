@@ -143,10 +143,27 @@ class BaseCommonModel(Model):
 
     def get_descendants(self, include_self=True):
         # TODO  implements 实现递归
-        _ids = self.children.all().values_list("id", flat=True)
-        _ids = list(_ids)
-        _ids.append(self.id)
-        return _ids
+        descendant_list = []
+
+        descendants = self.children.all()
+
+        for descendant in descendants:
+            ids = descendant.get_child()
+            descendant_list.extend(ids)
+
+        descendant_list.append(self.id)
+        return descendant_list
+
+    def get_child(self):
+        children = self.children.all()
+        if children:
+            ids = list(children.values_list("id", flat=True))
+            for descendant in children:
+                descendant.get_child()
+            ids.append(self.id)
+            return ids
+        else:
+            return [self.id]
 
     class Meta:
         abstract = True
