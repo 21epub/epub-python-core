@@ -8,6 +8,3 @@ from epub.core.models import BaseCommonModel
 class Category(BaseCommonModel):
 
     category_type = models.CharField(max_length=32)
-
-    class MPTTMeta:
-        order_insertion_by = ["position"]
