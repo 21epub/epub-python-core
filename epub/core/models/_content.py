@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.db.models import Model, ForeignKey
 from django.db.models.manager import BaseManager
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
@@ -8,7 +9,6 @@ from model_utils import Choices
 from model_utils.fields import MonitorField
 from model_utils.managers import SoftDeletableQuerySetMixin, QueryManager
 from model_utils.models import TimeStampedModel, _field_exists
-from mptt.models import MPTTModel, TreeForeignKey
 
 
 class BasicContentQuerySet(SoftDeletableQuerySetMixin, QuerySet):
@@ -110,7 +110,7 @@ def add_status_query_managers(sender, **kwargs):
 models.signals.class_prepared.connect(add_status_query_managers)
 
 
-class BaseCommonModel(MPTTModel):
+class BaseCommonModel(Model):
     """
     此公共模型用于封装Category和Folder的公共属性和方法
     """
@@ -118,7 +118,7 @@ class BaseCommonModel(MPTTModel):
     POSITION_STEP = 2 ** 16
 
     title = models.CharField(max_length=255)
-    parent = TreeForeignKey(
+    parent = ForeignKey(
         "self",
         on_delete=models.CASCADE,
         blank=True,
@@ -143,5 +143,19 @@ class BaseCommonModel(MPTTModel):
         position = queryset.last().position
         return position
 
+    def get_descendants(self, include_self=True):
+        # TODO  implements 实现递归
+        descendant_list = []
+
+        descendants = self.children.all()
+
+        for descendant in descendants:
+            ids = descendant.get_descendants()
+            descendant_list.extend(ids)
+
+        descendant_list.append(self.id)
+        return list(set(descendant_list))
+
     class Meta:
         abstract = True
+        ordering = ["position"]

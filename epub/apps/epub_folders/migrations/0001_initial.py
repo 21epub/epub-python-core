@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import mptt.fields
 
 
 class Migration(migrations.Migration):
@@ -35,7 +34,7 @@ class Migration(migrations.Migration):
                 ("level", models.PositiveIntegerField(editable=False)),
                 (
                     "parent",
-                    mptt.fields.TreeForeignKey(
+                    models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,

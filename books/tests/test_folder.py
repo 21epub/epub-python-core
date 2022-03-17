@@ -247,6 +247,7 @@ class TestBookFolder(TestCase):
         book1 = Book.objects.create(title="book1", user=test)
         book2 = Book.objects.create(title="book2", user=test)
         book3 = Book.objects.create(title="book3", user=test)
+        book4 = Book.objects.create(title="book4", user=test)
         Book.objects.create(title="book4", user=test)
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
@@ -254,33 +255,43 @@ class TestBookFolder(TestCase):
         folder2 = Folder.objects.create(
             title="folder2", user_id=1, subuser_id=1, folder_type="h5"
         )
+        folder1_1 = Folder.objects.create(
+            title="folder1_1", user_id=1, subuser_id=1, folder_type="h5", parent=folder1
+        )
+        folder1_1_1 = Folder.objects.create(
+            title="folder1_1_1", user_id=1, subuser_id=1, folder_type="h5", parent=folder1_1
+        )
         book1.folder_id = folder1
         book2.folder_id = folder1
         book3.folder_id = folder2
+        book4.folder_id = folder1_1_1
         book1.save()
         book2.save()
         book3.save()
+        book4.save()
         url = reverse("book:book_list_api", kwargs={"book_type": "h5"})
         res = self.client.get(url, data={"folder_id": folder1.id})
         self.assertEqual(res.status_code, 200)
         results = res.data.get("data").get("results")
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 3)
         self.assertEqual(results[0].get("id"), book1.id)
         self.assertEqual(results[1].get("id"), book2.id)
+        self.assertEqual(results[2].get("id"), book4.id)
 
         res2 = self.client.get(url, data={"folder_id": [folder1.id, folder2.id, 3]})
         self.assertEqual(res2.status_code, 200)
         results2 = res2.data.get("data").get("results")
-        self.assertEqual(len(results2), 3)
+        self.assertEqual(len(results2), 4)
         self.assertEqual(results2[0].get("id"), book1.id)
         self.assertEqual(results2[1].get("id"), book2.id)
         self.assertEqual(results2[2].get("id"), book3.id)
+        self.assertEqual(results2[3].get("id"), book4.id)
 
         url = reverse("book:book_list_api", kwargs={"book_type": "h5"})
         res3 = self.client.get(url)
         self.assertEqual(res3.status_code, 200)
         results2 = res3.data.get("data").get("results")
-        self.assertEqual(len(results2), 4)
+        self.assertEqual(len(results2), 5)
 
     def test_sort_reset_folder(self):
         data1 = {"title": "root"}
