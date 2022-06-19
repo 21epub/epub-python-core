@@ -35,6 +35,18 @@ class BookTestCase(TestCase):
         self.assertEqual(Book.draft.all().count(), 1)
         self.assertEqual(Book.published.all().count(), 1)
 
+    def test_delete_without_cache(self):
+        yunwen = Book.objects.get(title="yunwen")
+        Book.objects.all().delete()
+        yunwen2 = Book.objects.get(title="yunwen")
+        self.assertEqual(yunwen, yunwen2)
+
+    def test_delete_with_cache(self):
+        yunwen = Book.objects.get(title="yunwen")
+        yunwen.delete()
+        with self.assertRaises(Book.DoesNotExist):
+            Book.objects.get(title="yunwen")
+
 
 class ViewTestCase(TestCase):
     def setUp(self) -> None:
