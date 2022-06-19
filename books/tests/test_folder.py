@@ -208,8 +208,8 @@ class TestBookFolder(TestCase):
             data={"content_ids": content_ids, "folder_id": folder_id},
             content_type="application/json",
         )
-        book1 = Book.objects.get(title="book1", user=test_user)
-        book2 = Book.objects.get(title="book2", user=test_user)
+        book1 = Book.objects.get(title="book1")
+        book2 = Book.objects.get(title="book2")
         self.assertEqual(book1.folder_id, folder_id)
         self.assertEqual(book2.folder_id, folder_id)
 
@@ -259,7 +259,11 @@ class TestBookFolder(TestCase):
             title="folder1_1", user_id=1, subuser_id=1, folder_type="h5", parent=folder1
         )
         folder1_1_1 = Folder.objects.create(
-            title="folder1_1_1", user_id=1, subuser_id=1, folder_type="h5", parent=folder1_1
+            title="folder1_1_1",
+            user_id=1,
+            subuser_id=1,
+            folder_type="h5",
+            parent=folder1_1,
         )
         book1.folder_id = folder1
         book2.folder_id = folder1
