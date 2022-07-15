@@ -46,8 +46,6 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
             attrs["position"] = position + model_name.POSITION_STEP
         else:
             attrs["position"] = model_name.POSITION_STEP
-        type_key = "category_type" if self.Meta.model == Category else "folder_type"
-        attrs[type_key] = self.context.get("view").kwargs.get(type_key)
         return attrs
 
     def create(self, validated_data):
@@ -64,6 +62,14 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         except AttributeError:
             return []
         return ser.data
+
+
+class CommonFolderListCreateSerializers(CommonListCreateSerializers):
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        type_key = "category_type" if self.Meta.model == Category else "folder_type"
+        attrs[type_key] = self.context.get("view").kwargs.get(type_key)
+        return attrs
 
 
 class CommonRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):

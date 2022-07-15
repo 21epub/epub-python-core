@@ -5,19 +5,24 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.apps import apps
 from epub.core.serializers import (
-    CommonListCreateSerializers,
+    CommonFolderListCreateSerializers,
     CommonRetrieveUpdateDeleteSerializer,
     CommonSortSerializer,
 )
 
 
-class CategorySerializer(CommonListCreateSerializers):
+class CategorySerializer(CommonFolderListCreateSerializers):
     class Meta:
         model = Category
         exclude = [
             "parent",
         ]
         extra_kwargs = {"category_type": {"required": False}}
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        attrs["category_type"] = self.context.get("view").kwargs.get("category_type")
+        return attrs
 
 
 class CategoryRetrieveUpdateDeleteSerializer(CommonRetrieveUpdateDeleteSerializer):

@@ -5,13 +5,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.apps import apps
 from epub.core.serializers import (
-    CommonListCreateSerializers,
+    CommonFolderListCreateSerializers,
     CommonRetrieveUpdateDeleteSerializer,
     CommonSortSerializer,
 )
 
 
-class FolderSerializer(CommonListCreateSerializers):
+class FolderSerializer(CommonFolderListCreateSerializers):
     class Meta:
         model = Folder
         exclude = [
