@@ -94,7 +94,8 @@ class CommonSortSerializer(serializers.ModelSerializer):
 
         self.target_obj = self.Meta.model.objects.get(pk=target)
 
-        self.set_position(before, after, parent)
+        if target and any([before, after, parent]):
+            self.set_position(before, after, parent)
 
         attrs["target_obj"] = self.target_obj
 
