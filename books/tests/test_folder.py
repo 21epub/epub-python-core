@@ -352,3 +352,25 @@ class TestBookFolder(TestCase):
             child3_update.position,
             (child1_update.position + child2_update.position) / 2,
         )
+
+    def test_folder_sort_only_target(self):
+        data1 = {"title": "root"}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+        self.client.post(url, data1)
+        f1 = Folder.objects.get(title="root")
+
+        url = reverse("book:epub_folders:folder_sort_api", kwargs={"book_type": "h5"})
+
+        res = self.client.post(
+            url,
+            data={
+                "target": f1.id,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(res.status_code, 200)
+        result = res.json()["data"]["results"][0]
+        self.assertEqual(result["position"], f1.position)
