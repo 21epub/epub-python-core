@@ -164,9 +164,9 @@ class TestBookCategory(TestCase):
         self.assertEqual(res.status_code, 200)
         results = res.data.get("data").get("results")
         children_data = results[0].get("children")
-        self.assertEqual(children_data[0].get("title"), "child1")
+        self.assertEqual(children_data[0].get("title"), "child3")
         self.assertEqual(children_data[1].get("title"), "child2")
-        self.assertEqual(children_data[2].get("title"), "child3")
+        self.assertEqual(children_data[2].get("title"), "child1")
         root = Category.objects.get(title="root")
         child1 = Category.objects.get(title="child1")
         child2 = Category.objects.get(title="child2")
@@ -193,9 +193,9 @@ class TestBookCategory(TestCase):
         self.assertEqual(res.status_code, 200)
         results = res.data.get("data").get("results")
         children_data = results[0].get("children")
-        self.assertEqual(children_data[0].get("title"), "child1")
+        self.assertEqual(children_data[0].get("title"), "child2")
         self.assertEqual(children_data[1].get("title"), "child3")
-        self.assertEqual(children_data[2].get("title"), "child2")
+        self.assertEqual(children_data[2].get("title"), "child1")
 
     def test_batch_category(self):
         test_user = User.objects.create_user(username="test")

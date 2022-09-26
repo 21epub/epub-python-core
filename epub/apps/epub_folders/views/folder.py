@@ -21,7 +21,7 @@ class FolderListCreateAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     filter_backends = [CommonTypeFilterBackend, CommonUserFilterBackend]
 
     def get_queryset(self):
-        queryset = Folder.objects.filter(parent=None).order_by("position")
+        queryset = Folder.objects.filter(parent=None).order_by("-position")
         return queryset
 
 

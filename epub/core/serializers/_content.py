@@ -58,7 +58,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
     @classmethod
     def get_children(cls, obj):
         try:
-            ser = cls(obj.children, many=True)
+            ser = cls(obj.children.order_by("-position"), many=True)
         except AttributeError:
             return []
         return ser.data
