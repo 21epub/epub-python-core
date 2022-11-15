@@ -4,9 +4,10 @@ from books.models import Book
 
 class BookBatchSerializer(serializers.ListSerializer):
     def update(self, instances, validated_data):
-        for index, obj in enumerate(instances):
-            self.child.update(obj, validated_data[index])
-        return instances
+        return [
+            self.child.update(instances[index], attrs)
+            for index, attrs in enumerate(validated_data)
+        ]
 
 
 class BookListSerializer(serializers.ModelSerializer):
