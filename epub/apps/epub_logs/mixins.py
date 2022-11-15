@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from .models import LogEntry
 from django.utils.translation import gettext as _
+from django.db.models.query import QuerySet
 
 from ..account.mixins import GetUserViewMixin
 
@@ -63,7 +64,7 @@ class LoggingViewSetMixin(LoggingViewMixin):
     def perform_update(self, serializer):
         super().perform_update(serializer)
         instance = serializer.instance
-        if isinstance(instance, list):
+        if issubclass(type(instance), QuerySet):
             for row in instance:
                 self.log(row, action_type=LogEntry.CHANGE, action_name="修改")
         else:

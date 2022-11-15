@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics
-
+from rest_framework import generics, serializers
 
 # Create your views here.
 from epub.apps.epub_labels.views.filters import LabelFilter
@@ -21,7 +20,7 @@ class JSView(APIView):
         return Response("var js=1;", content_type="application/javascript")
 
 
-class BookListAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
+class BookListAPIView(LoggingViewSetMixin, generics.UpdateAPIView, generics.ListCreateAPIView):
     serializer_class = BookListSerializer
     queryset = Book.objects.all()
     filter_backends = [
@@ -31,6 +30,27 @@ class BookListAPIView(LoggingViewSetMixin, generics.ListCreateAPIView):
     ]
 
     label_linked_app = "cbt"
+
+    def get_queryset(self):
+        data = self.request.data
+        # 只有批量 更新 才会运行以下代码
+        if isinstance(data, list):
+            title_list = [x["title"] for x in data]
+            if len(title_list) != len(set(title_list)):
+                raise serializers.ValidationError(
+                    "Multiple updates to a single slug not found"
+                )
+            if title_list:
+                return Book.objects.filter(title__in=title_list)
+        return Book.objects.all()
+
+    def get_object(self):
+        return self.get_queryset()
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
 
 
 class BookRemarkListCreateAPIView(RemarkListCreateAPIView):
