@@ -1,5 +1,5 @@
 django-extensions==2.1.4
-Django==3.1.14
+Django==3.2.15
 django-environ==0.4.5
 django-model-utils==4.1.1
 django-redis==5.0.0
@@ -9,3 +9,5 @@ requests==2.23.0
 django-filter==2.4.0
 transitions
 celery==5.2.2
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
