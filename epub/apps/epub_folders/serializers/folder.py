@@ -19,6 +19,11 @@ class FolderSerializer(CommonFolderListCreateSerializers):
         ]
         extra_kwargs = {"folder_type": {"required": False}}
 
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        attrs["folder_type"] = self.context.get("view").kwargs.get("folder_type")
+        return attrs
+
 
 class FolderRetrieveUpdateDeleteSerializer(CommonRetrieveUpdateDeleteSerializer):
     class Meta:

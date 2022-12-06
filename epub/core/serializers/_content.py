@@ -56,20 +56,19 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         return super().create(validated_data)
 
     @classmethod
-    def get_children(cls, obj):
+    def get_children(cls, obj, order_by="position"):
         try:
-            ser = cls(obj.children.order_by("-position"), many=True)
+            ser = cls(obj.children.order_by(order_by), many=True)
         except AttributeError:
             return []
         return ser.data
 
 
 class CommonFolderListCreateSerializers(CommonListCreateSerializers):
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        type_key = "category_type" if self.Meta.model == Category else "folder_type"
-        attrs[type_key] = self.context.get("view").kwargs.get(type_key)
-        return attrs
+
+    @classmethod
+    def get_children(cls, obj, order_by="-position"):
+        return super().get_children(obj, order_by=order_by)
 
 
 class CommonRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
