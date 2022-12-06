@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from django.http import Http404
-from epub.apps.epub_categories.models.category import Category
 
 
 class CommonListCreateSerializers(serializers.ModelSerializer):
     children = serializers.SerializerMethodField(default=[])
     id = serializers.IntegerField(required=False)
+    parent = serializers.IntegerField(required=False, write_only=True)
+    parent_id = serializers.IntegerField(required=False, write_only=True)
 
     def get_user_and_subuser_id(self, request):
         if request and request.user.is_authenticated:
@@ -18,42 +18,38 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
 
         return user_id, subuser_id
 
-    def validate(self, attrs):
-        parent_id = self.initial_data.get(
-            "parent", self.initial_data.get("parent_id", None)
-        )
-        model_name = self.Meta.model
-        request = self.context.get("request")
-        user_id, _ = self.get_user_and_subuser_id(request)
+    def set_parent(self, attrs):
+        parent_id = attrs.get("parent", attrs.get("parent_id", None))
         if parent_id:
             try:
-                position = model_name.get_current_max_position(
-                    parent_id=parent_id, user_id=user_id
-                )
-            except model_name.DoesNotExist:
-                raise Http404
-            # 设置 parent
-            try:
-                obj = model_name.objects.get(pk=parent_id)
-            except model_name.DoesNotExist:
-                raise Http404
-            attrs["parent"] = obj
-        else:
-            position = model_name.get_current_max_position(user_id=user_id)
+                parent = self.Meta.model.objects.get(id=parent_id)
+                attrs["parent"] = parent
+            except self.Meta.model.DoesNotExist:
+                raise serializers.ValidationError({"parent": f"parent {parent_id} not exists."})
 
-        # 设置 position
-        if position:
-            attrs["position"] = position + model_name.POSITION_STEP
-        else:
-            attrs["position"] = model_name.POSITION_STEP
+    def set_position(self, attrs):
+        position = self.Meta.model.get_next_position(**attrs)
+        attrs["position"] = position
+
+    def set_extra_attrs(self, attrs):
+        """
+        add extra value to validated_data:
+            eg: attrs["extra_key"] = extra_value
+        extra_key must be a field of self.Meta.model
+        """
+        pass
+
+    def set_user(self, attrs):
+        user_id, subuser_id = self.get_user_and_subuser_id(self.context.get("request"))
+        attrs["user_id"] = user_id
+        attrs["subuser_id"] = subuser_id
+
+    def validate(self, attrs):
+        self.set_extra_attrs(attrs)
+        self.set_parent(attrs)
+        self.set_user(attrs)
+        self.set_position(attrs)
         return attrs
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        user_id, subuser_id = self.get_user_and_subuser_id(request)
-        validated_data["user_id"] = user_id
-        validated_data["subuser_id"] = subuser_id
-        return super().create(validated_data)
 
     @classmethod
     def get_children(cls, obj, order_by="position"):

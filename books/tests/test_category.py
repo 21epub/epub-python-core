@@ -1,10 +1,15 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 # Create your tests here.
+from rest_framework import serializers
+
 from books.models import Book
 from django.urls import reverse
 from epub.apps.epub_categories.models.category import Category
+from epub.apps.epub_categories.serializers.category import CategorySerializer
 
 User = get_user_model()
 
@@ -27,6 +32,25 @@ class TestBookCategory(TestCase):
         self.assertEqual(results[0].get("user_id"), 1)
         self.assertEqual(results[0].get("subuser_id"), 1)
         self.assertEqual(results[0].get("children")[0].get("title"), "book_root_child1")
+
+    @patch("epub.apps.epub_categories.serializers.category.CategorySerializer.set_extra_attrs")
+    def test_common_list_create_serializers(self, mock_set_extra_attrs):
+        mock_set_extra_attrs.return_value = None
+        ser = CategorySerializer(data={"title": "category_title"})
+        ser.is_valid(raise_exception=True)
+        instance = ser.save()
+        self.assertIsNone(instance.subuser_id)
+        self.assertIsNone(instance.user_id)
+        self.assertEqual(instance.title, "category_title")
+        self.assertEqual(instance.category_type, "")
+        self.assertEqual(instance.position, Category.POSITION_STEP)
+
+    def test_common_list_create_serializers_with_category_type_error(self):
+        ser = CategorySerializer(data={"title": "category_title"})
+        try:
+            ser.is_valid(raise_exception=True)
+        except serializers.ValidationError as e:
+            self.assertTrue("category_type" in e.detail)
 
     def test_list_book_categories(self):
         root_category = Category.objects.create(

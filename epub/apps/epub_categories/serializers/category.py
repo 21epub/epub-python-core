@@ -14,15 +14,19 @@ from epub.core.serializers import (
 class CategorySerializer(CommonFolderListCreateSerializers):
     class Meta:
         model = Category
-        exclude = [
-            "parent",
-        ]
-        extra_kwargs = {"category_type": {"required": False}}
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        attrs["category_type"] = self.context.get("view").kwargs.get("category_type")
-        return attrs
+        fields = "__all__"
+        extra_kwargs = {
+            "category_type": {"read_only": True},
+            "id": {"read_only": True},
+        }
+
+    def set_extra_attrs(self, attrs):
+        category_type = getattr(self.context.get("view"), "kwargs", {}).get("category_type", None)
+        if category_type:
+            attrs["category_type"] = category_type
+        else:
+            raise serializers.ValidationError({"category_type": "folder_type must be provided"})
 
 
 class CategoryRetrieveUpdateDeleteSerializer(CommonRetrieveUpdateDeleteSerializer):

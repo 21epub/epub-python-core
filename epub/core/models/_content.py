@@ -131,17 +131,35 @@ class BaseCommonModel(Model):
     subuser_id = models.IntegerField(db_index=True, null=True)
 
     @classmethod
-    def get_current_max_position(cls, parent_id=None, user_id=None):
-        if parent_id:
-            queryset = cls.objects.filter(parent=parent_id).order_by("position")
+    def get_current_max_position(cls, **kwargs):
+        """
+        return current maximum position
+        """
+        parent = kwargs.get("parent", None)
+        if parent:
+            # 如果有 parent 直接拿当前 parent 下最大节点
+            queryset = cls.objects.filter(parent=parent).order_by("-position").values("position").first()
         else:
-            queryset = cls.objects.filter(parent=None, user_id=user_id).order_by(
-                "position"
-            )
+            # 如果没有 parent , 自定义获取当前最大节点的方法
+            queryset = cls.get_max_position_by_extra_kwargs(**kwargs)
         if not queryset:
             return
-        position = queryset.last().position
+        position = queryset.get("position")
         return position
+
+    @classmethod
+    def get_max_position_by_extra_kwargs(cls, **kwargs):
+        user_id = kwargs.get("user_id")
+        queryset = cls.objects.filter(parent=None, user_id=user_id).order_by("-position").values("position").first()
+        return queryset
+
+    @classmethod
+    def get_next_position(cls, **kwargs):
+        _position = cls.get_current_max_position(**kwargs)
+        if _position:
+            return _position + cls.POSITION_STEP
+        else:
+            return cls.POSITION_STEP
 
     def get_descendants(self, include_self=True):
         # TODO  implements 实现递归
