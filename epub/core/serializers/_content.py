@@ -36,12 +36,8 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
 
         attrs["position"] = position
 
-    @staticmethod
-    def get_position_filter_params(attrs):
-        filter_params = {}
-        if "user_id" in attrs:
-            filter_params["user_id"] = attrs.get("user_id", None)
-        return filter_params
+    def get_position_filter_params(self, attrs):
+        raise NotImplementedError("apply a dict for get max position obj when attrs has no attribute 'parent'.")
 
     def set_extra_attrs(self, attrs):
         """
@@ -77,6 +73,12 @@ class CommonFolderListCreateSerializers(CommonListCreateSerializers):
     @classmethod
     def get_children(cls, obj, order_by="-position"):
         return super().get_children(obj, order_by=order_by)
+
+    def get_position_filter_params(self, attrs):
+        filter_params = {}
+        if "user_id" in attrs:
+            filter_params["user_id"] = attrs.get("user_id", None)
+        return filter_params
 
 
 class CommonRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
