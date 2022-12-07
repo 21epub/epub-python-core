@@ -28,8 +28,20 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError({"parent": f"parent {parent_id} not exists."})
 
     def set_position(self, attrs):
-        position = self.Meta.model.get_next_position(**attrs)
+        if "parent" in attrs:
+            position = self.Meta.model.get_next_position(parent=attrs.get("parent", None))
+        else:
+            filter_params = self.get_position_filter_params(attrs)
+            position = self.Meta.model.get_next_position(**filter_params)
+
         attrs["position"] = position
+
+    @staticmethod
+    def get_position_filter_params(attrs):
+        filter_params = {}
+        if "user_id" in attrs:
+            filter_params["user_id"] = attrs.get("user_id", None)
+        return filter_params
 
     def set_extra_attrs(self, attrs):
         """

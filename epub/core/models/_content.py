@@ -135,23 +135,13 @@ class BaseCommonModel(Model):
         """
         return current maximum position
         """
-        parent = kwargs.get("parent", None)
-        if parent:
-            # 如果有 parent 直接拿当前 parent 下最大节点
-            queryset = cls.objects.filter(parent=parent).order_by("-position").values("position").first()
-        else:
-            # 如果没有 parent , 自定义获取当前最大节点的方法
-            queryset = cls.get_max_position_by_extra_kwargs(**kwargs)
-        if not queryset:
-            return
-        position = queryset.get("position")
+        position = None
+        if "parent" not in kwargs:
+            kwargs["parent"] = None
+        queryset = cls.objects.filter(**kwargs).order_by("-position").values("position").first()
+        if queryset:
+            position = queryset.get("position")
         return position
-
-    @classmethod
-    def get_max_position_by_extra_kwargs(cls, **kwargs):
-        user_id = kwargs.get("user_id")
-        queryset = cls.objects.filter(parent=None, user_id=user_id).order_by("-position").values("position").first()
-        return queryset
 
     @classmethod
     def get_next_position(cls, **kwargs):
