@@ -19,7 +19,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         return user_id, subuser_id
 
     def set_parent(self, attrs):
-        parent_id = attrs.get("parent", attrs.get("parent_id", None))
+        parent_id = attrs.get("parent", attrs.pop("parent_id", None))
         if parent_id:
             try:
                 parent = self.Meta.model.objects.get(id=parent_id)
@@ -29,14 +29,18 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
 
     def set_position(self, attrs):
         if "parent" in attrs:
-            position = self.Meta.model.get_next_position(parent=attrs.get("parent", None))
+            filter_params = {"parent": attrs.get("parent", None)}
         else:
             filter_params = self.get_position_filter_params(attrs)
-            position = self.Meta.model.get_next_position(**filter_params)
+
+        position = self.Meta.model.get_next_position(**filter_params)
 
         attrs["position"] = position
 
     def get_position_filter_params(self, attrs):
+        """
+        return dict for filter model
+        """
         raise NotImplementedError("apply a dict for get max position obj when attrs has no attribute 'parent'.")
 
     def set_extra_attrs(self, attrs):
