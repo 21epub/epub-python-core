@@ -1,10 +1,15 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 # Create your tests here.
+from rest_framework import serializers
+
 from books.models import Book
 from django.urls import reverse
 from epub.apps.epub_folders.models.folder import Folder
+from epub.apps.epub_folders.serializers.folder import FolderSerializer
 
 User = get_user_model()
 
@@ -27,6 +32,45 @@ class TestBookFolder(TestCase):
         self.assertEqual(results[0].get("user_id"), 1)
         self.assertEqual(results[0].get("subuser_id"), 1)
         self.assertEqual(results[0].get("children")[0].get("title"), "book_root_child1")
+
+        data3 = {"title": "book_root_child2", "parent_id": f1.id}
+        self.client.post(url, data3)
+        res = self.client.get(url)
+        results = res.data.get("data").get("results")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].get("title"), "book_root")
+        self.assertEqual(results[0].get("user_id"), 1)
+        self.assertEqual(results[0].get("subuser_id"), 1)
+        self.assertEqual(results[0].get("children")[0].get("title"), data3["title"])
+        self.assertEqual(results[0].get("children")[1].get("title"), data2["title"])
+
+    def test_create_folder_with_parent_not_exists(self):
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+        data = {"title": "book_root", "parent_id": 1000000}
+        res = self.client.post(url, data)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json(), {"parent": [f"parent {data['parent_id']} not exists."]})
+
+    @patch("epub.apps.epub_folders.serializers.folder.FolderSerializer.set_extra_attrs")
+    def test_common_list_create_serializers(self, mock_set_extra_attrs):
+        mock_set_extra_attrs.return_value = None
+        ser = FolderSerializer(data={"title": "folder_title"})
+        ser.is_valid(raise_exception=True)
+        instance = ser.save()
+        self.assertIsNone(instance.subuser_id)
+        self.assertIsNone(instance.user_id)
+        self.assertEqual(instance.title, "folder_title")
+        self.assertEqual(instance.folder_type, "")
+        self.assertEqual(instance.position, Folder.POSITION_STEP)
+
+    def test_common_list_create_serializers_with_folder_type_error(self):
+        ser = FolderSerializer(data={"title": "folder_title"})
+        try:
+            ser.is_valid(raise_exception=True)
+        except serializers.ValidationError as e:
+            self.assertTrue("folder_type" in e.detail)
 
     def test_list_book_folders(self):
         root_folder = Folder.objects.create(

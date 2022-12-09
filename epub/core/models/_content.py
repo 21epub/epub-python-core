@@ -131,17 +131,25 @@ class BaseCommonModel(Model):
     subuser_id = models.IntegerField(db_index=True, null=True)
 
     @classmethod
-    def get_current_max_position(cls, parent_id=None, user_id=None):
-        if parent_id:
-            queryset = cls.objects.filter(parent=parent_id).order_by("position")
-        else:
-            queryset = cls.objects.filter(parent=None, user_id=user_id).order_by(
-                "position"
-            )
-        if not queryset:
-            return
-        position = queryset.last().position
+    def get_current_max_position(cls, **kwargs):
+        """
+        return current maximum position
+        """
+        position = None
+        if "parent" not in kwargs:
+            kwargs["parent"] = None
+        queryset = cls.objects.filter(**kwargs).order_by("-position").values("position").first()
+        if queryset:
+            position = queryset.get("position")
         return position
+
+    @classmethod
+    def get_next_position(cls, **kwargs):
+        _position = cls.get_current_max_position(**kwargs)
+        if _position:
+            return _position + cls.POSITION_STEP
+        else:
+            return cls.POSITION_STEP
 
     def get_descendants(self, include_self=True):
         # TODO  implements 实现递归
