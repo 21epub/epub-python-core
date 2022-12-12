@@ -86,6 +86,24 @@ CommonListCreateSerializers <|.. FolderSerializer
     当 "parent" in attrs: 根据 parent 计算 position ，并设置 attrs["position"] = position 
     当 "parent" not in attrs: 需要提供查询当前最大位置的过滤参数 例如 {"user_id": 1}，根据条件计算 position ，并设置 attrs["position"] = position 
 
+#### Meta()
+    提供了一个默认的批量创建序列化基类，需继承 CommonListCreateSerializers.Meta 使用
+    需要注意的是: 数据批量写入数据库时，使用了 Django ORM 的 bulk_create_obj ,所以直接返回的objs 是没有 PK 的。
+
+    需要提供批量操作时:
+    1. view
+    ```
+        def get_serializer(self, *args, **kwargs):
+            if isinstance(kwargs.get("data", {}), list):
+                kwargs["many"] = True
+            return super().get_serializer(*args, **kwargs)
+    ```
+    1. serializer:
+    ```
+        class Meta(CommonListCreateSerializers.Meta):
+            pass
+    ```
+
 ### BaseCommonModel
 
 #### get_current_max_position(**kwargs)

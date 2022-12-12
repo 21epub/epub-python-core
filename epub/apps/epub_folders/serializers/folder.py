@@ -12,7 +12,7 @@ from epub.core.serializers import (
 
 
 class FolderSerializer(CommonFolderListCreateSerializers):
-    class Meta:
+    class Meta(CommonFolderListCreateSerializers.Meta):
         model = Folder
         fields = "__all__"
         extra_kwargs = {
