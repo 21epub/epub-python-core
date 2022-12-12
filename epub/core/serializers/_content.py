@@ -195,7 +195,7 @@ class CommonSortSerializer(serializers.ModelSerializer):
             # 作为子元素移动到一个元素的最后位置
             parent_obj = app_model.objects.get(pk=parent)
             current_max_position = app_model.get_current_max_position(
-                parent_id=parent_obj.id
+                parent=parent_obj
             )
             if current_max_position:
                 position = current_max_position + app_model.POSITION_STEP
