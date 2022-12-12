@@ -90,10 +90,18 @@ CommonListCreateSerializers <|.. FolderSerializer
     提供了一个默认的批量创建序列化基类，需继承 CommonListCreateSerializers.Meta 使用
     需要注意的是: 数据批量写入数据库时，使用了 Django ORM 的 bulk_create_obj ,所以直接返回的objs 是没有 PK 的。
 
-    需要提供批量操作时，需要实现:
+    需要提供批量操作时:
+    1. view
+    ```
+        def get_serializer(self, *args, **kwargs):
+            if isinstance(kwargs.get("data", {}), list):
+                kwargs["many"] = True
+            return super().get_serializer(*args, **kwargs)
+    ```
+    1. serializer:
     ```
         class Meta(CommonListCreateSerializers.Meta):
-            model = model_name
+            pass
     ```
 
 ### BaseCommonModel
