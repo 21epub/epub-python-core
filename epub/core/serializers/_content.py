@@ -1,11 +1,22 @@
 from rest_framework import serializers
 
 
+class CommonBatchCreateSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        model = self.child.Meta.model
+        objs = [model(**data) for data in validated_data]
+        instances = model.objects.bulk_create(objs)
+        return instances
+
+
 class CommonListCreateSerializers(serializers.ModelSerializer):
     children = serializers.SerializerMethodField(default=[])
     id = serializers.IntegerField(required=False)
     parent = serializers.IntegerField(required=False, write_only=True)
     parent_id = serializers.IntegerField(required=False, write_only=True)
+
+    class Meta:
+        list_serializer_class = CommonBatchCreateSerializer
 
     def get_user_and_subuser_id(self, request):
         if request and request.user.is_authenticated:
@@ -19,6 +30,10 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         return user_id, subuser_id
 
     def set_parent(self, attrs):
+        if hasattr(self, "_parent_obj"):
+            attrs["parent"] = getattr(self, "_parent_obj", None)
+            return
+
         parent_id = attrs.get("parent", attrs.pop("parent_id", None))
         if parent_id:
             try:
@@ -26,16 +41,21 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 attrs["parent"] = parent
             except self.Meta.model.DoesNotExist:
                 raise serializers.ValidationError({"parent": f"parent {parent_id} not exists."})
+            setattr(self, "_parent_obj", parent)
 
     def set_position(self, attrs):
-        if "parent" in attrs:
-            filter_params = {"parent": attrs.get("parent", None)}
+        if hasattr(self, "_previous_position"):
+            _previous_position = getattr(self, "_previous_position", None)
+            position = _previous_position + self.Meta.model.POSITION_STEP
         else:
-            filter_params = self.get_position_filter_params(attrs)
-
-        position = self.Meta.model.get_next_position(**filter_params)
+            if "parent" in attrs:
+                filter_params = {"parent": attrs.get("parent", None)}
+            else:
+                filter_params = self.get_position_filter_params(attrs)
+            position = self.Meta.model.get_next_position(**filter_params)
 
         attrs["position"] = position
+        setattr(self, "_previous_position", position)
 
     def get_position_filter_params(self, attrs):
         """
@@ -70,6 +90,9 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         except AttributeError:
             return []
         return ser.data
+
+    def create(self, validated_data):
+        return super().create(validated_data)
 
 
 class CommonFolderListCreateSerializers(CommonListCreateSerializers):

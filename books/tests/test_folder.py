@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -52,6 +53,33 @@ class TestBookFolder(TestCase):
         res = self.client.post(url, data)
         self.assertEqual(res.status_code, 400)
         self.assertEqual(res.json(), {"parent": [f"parent {data['parent_id']} not exists."]})
+
+    def test_bulk_create_folder(self):
+        folder = Folder.objects.create(title="root_folder", user_id=1, subuser_id=1, folder_type="folder_type")
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+        data = [{"title": "branch_1", "parent": folder.id}, {"title": "branch_2", "parent": folder.id}]
+        res = self.client.post(url, json.dumps(data), content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        results = res.json()["data"]["results"]
+        self.assertEqual(results[0]["position"], Folder.POSITION_STEP)
+        self.assertEqual(results[0]["title"], data[0]["title"])
+        self.assertEqual(results[1]["position"], Folder.POSITION_STEP * 2)
+        self.assertEqual(results[1]["title"], data[1]["title"])
+
+        max_position_with_no_parent = Folder.get_current_max_position()
+
+        data = [{"title": "branch_3"}, {"title": "branch_4"}]
+        res = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        results = res.json()["data"]["results"]
+        self.assertEqual(results[0]["id"], None)
+        self.assertEqual(results[0]["position"], max_position_with_no_parent + Folder.POSITION_STEP)
+        self.assertEqual(results[0]["title"], data[0]["title"])
+        self.assertEqual(results[1]["position"], max_position_with_no_parent + Folder.POSITION_STEP * 2)
+        self.assertEqual(results[1]["title"], data[1]["title"])
+        self.assertEqual(results[1]["id"], None)
 
     @patch("epub.apps.epub_folders.serializers.folder.FolderSerializer.set_extra_attrs")
     def test_common_list_create_serializers(self, mock_set_extra_attrs):

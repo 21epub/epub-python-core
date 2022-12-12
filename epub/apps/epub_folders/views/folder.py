@@ -20,6 +20,11 @@ class FolderListCreateAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     pagination_class = LargeResultsSetPagination
     filter_backends = [CommonTypeFilterBackend, CommonUserFilterBackend]
 
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
+
     def get_queryset(self):
         queryset = Folder.objects.filter(parent=None).order_by("-position")
         return queryset
