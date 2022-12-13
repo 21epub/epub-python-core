@@ -32,6 +32,7 @@ class LoggingMixin(object):
         change_message="",
         **kwargs
     ):
+        
         object_type = getattr(instance, "object_type", instance.__class__.__name__)
         LogEntry(
             user_id=kwargs.get("user_id"),
