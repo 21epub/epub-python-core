@@ -64,3 +64,16 @@ class LogTestCase(TestCase):
         self.assertEqual(res.json()[0]["title"], data[0]["title"])
         self.assertEqual(res.json()[1]["title"], data[1]["title"])
 
+    def test_save_log(self):
+        self.assertEqual(LogEntry.objects.count(), 0)
+        self.assertEqual(self.book_yuwen.status, Book.STATUS_CHOICES.draft)
+        url = reverse("book:book_publish_api", kwargs={"book_type": "cbt", "id": self.book_yuwen.id})
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, 200)
+        self.book_yuwen.refresh_from_db()
+        self.assertEqual(self.book_yuwen.status, Book.STATUS_CHOICES.published)
+        self.assertEqual(LogEntry.objects.count(), 1)
+        log = LogEntry.objects.first()
+        self.assertEqual(log.action_type, LogEntry.PUBLISH)
+        self.assertEqual(log.action_name, "发布")
+

@@ -25,11 +25,15 @@ class LogEntry(CreatorModelMixin, models.Model):
     CHANGE = 2
     DELETION = 3
     EDIT = 4
+    PUBLISH = 5
+    PUSH = 6
     ACTION_TYPE_CHOICES = (
         (ADDITION, _("Addition")),
         (CHANGE, _("Change")),
         (DELETION, _("Deletion")),
         (EDIT, _("Edit")),
+        (PUBLISH, _("Publish")),
+        (PUSH, _("Push")),
     )
     action_time = models.DateTimeField(
         _("action time"),

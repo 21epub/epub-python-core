@@ -22,6 +22,30 @@ def get_client_ip(request):
     return ip
 
 
+class LoggingMixin(object):
+    def log(
+        self,
+        instance,
+        action_type,
+        action_name,
+        action_level=LogEntry.INFO,
+        change_message="",
+        **kwargs
+    ):
+        object_type = getattr(instance, "object_type", instance.__class__.__name__)
+        LogEntry(
+            user_id=kwargs.get("user_id"),
+            object_type=object_type,
+            object_id=instance.pk,
+            object_repr=str(instance)[:200],
+            action_ip="0.0.0.0",
+            action_type=action_type,
+            action_name=action_name,
+            action_level=action_level,
+            change_message=change_message,
+        ).save()
+
+
 class LoggingViewMixin(GetUserViewMixin):
     def log(
         self,
