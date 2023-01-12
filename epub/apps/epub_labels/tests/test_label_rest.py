@@ -177,6 +177,35 @@ class TestLabelList(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.json()["data"]["numpages"], 1)
 
+    def test_create_bool_label(self):
+        url = reverse("label_api_url:label_list_api")
+
+        data = {
+                "title": "布尔类型",
+                "cid": "correct",
+                "value_type": "bool",
+                "input_type": "bool",
+            "enabled": True
+            }
+        res = self.client.post(
+            url,
+            data=data,
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"]["results"][0]["title"], data["title"])
+        self.assertEqual(res.json()["data"]["results"][0]["cid"], data["cid"])
+        self.assertEqual(res.json()["data"]["results"][0]["value_type"], data["value_type"])
+        self.assertEqual(res.json()["data"]["results"][0]["input_type"], data["input_type"])
+
+        self.assertEqual(res.json()["data"]["results"][0]["subuser_id"], 1)
+        self.assertEqual(res.json()["data"]["results"][0]["user_id"], 1)
+        self.assertEqual(res.json()["data"]["results"][0]["nickname"], "test1")
+
+        self.assertEqual(res.json()["data"]["results"][0]["maximum_depth"], 1)
+        self.assertEqual(res.json()["data"]["results"][0]["enabled"], data["enabled"])
+        self.assertEqual(res.json()["data"]["results"][0]["linked"], False)
+        self.assertEqual(res.json()["data"]["results"][0]["items"], None)
+
 
 class TestAppLabel(TestCase):
     def test_create_label(self):

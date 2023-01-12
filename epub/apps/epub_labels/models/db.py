@@ -22,12 +22,13 @@ class LabelMixin(models.Model):
         abstract = True
 
 
-class Label(BasicContentModel):
-    VALUE_TYPE_CHOICES = Choices((0, "text", _("text")), (1, "number", _("number")))
+class LabelBase(BasicContentModel):
+    VALUE_TYPE_CHOICES = Choices((0, "text", _("text")), (1, "number", _("number")), (3, "bool", _("bool")))
     INPUT_TYPE_CHOICES = Choices(
         (0, "single", _("single")),
         (1, "multiple", _("multiple")),
         (2, "input", _("input")),
+        (3, "bool", _("bool")),
     )
 
     user_id = models.IntegerField(default=None, null=True)
@@ -46,9 +47,16 @@ class Label(BasicContentModel):
     allow_add_items = models.BooleanField(default=False, null=True)  # 可自由添加标签项
     items = models.JSONField(blank=True, null=True)
 
+    class Meta:
+        abstract = True
+
+
+class Label(LabelBase):
+    pass
+
     @property
     def filter_lookup(self):
-        if self.input_type != self.INPUT_TYPE_CHOICES.input:
+        if self.input_type in [self.INPUT_TYPE_CHOICES.single, self.INPUT_TYPE_CHOICES.multiple]:
             # list search
             return "{}__contains".format(self.cid)
 
@@ -56,7 +64,7 @@ class Label(BasicContentModel):
             # input text
             return "{}__icontains".format(self.cid)
         else:
-            # input number
+            # input number or bool
             return self.cid
 
     @property
