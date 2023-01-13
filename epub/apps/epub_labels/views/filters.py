@@ -37,6 +37,11 @@ class LabelFilter(BaseFilterBackend):
                         label_filter[lookup_value] = float(label_value)
                     except ValueError:
                         raise ValidationError()
+                elif value_type == Label.VALUE_TYPE_CHOICES.bool:
+                    if label_value == "true":
+                        label_filter[lookup_value] = True
+                    elif label_value == "false":
+                        label_filter[lookup_value] = False
                 else:
                     label_filter[lookup_value] = label_value
         return label_filter
