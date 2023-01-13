@@ -152,3 +152,7 @@ class LabelContentDB(TestCase):
         query_params = {"label.correct": "false"}
         res = self.client.get(url, data=query_params)
         self.assertEqual(res.data.get("data").get("sum"), 1)
+
+        query_params = {"label.correct": "null"}
+        res = self.client.get(url, data=query_params)
+        self.assertEqual(res.data.get("data").get("sum"), 4)

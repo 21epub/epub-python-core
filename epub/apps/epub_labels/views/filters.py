@@ -40,7 +40,7 @@ class LabelFilter(BaseFilterBackend):
                 elif value_type == Label.VALUE_TYPE_CHOICES.bool:
                     if label_value == "true":
                         label_filter[lookup_value] = True
-                    else:
+                    elif label_value == "false":
                         label_filter[lookup_value] = False
                 else:
                     label_filter[lookup_value] = label_value
