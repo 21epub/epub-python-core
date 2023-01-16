@@ -50,10 +50,6 @@ class LabelBase(BasicContentModel):
     class Meta:
         abstract = True
 
-
-class Label(LabelBase):
-    pass
-
     @property
     def filter_lookup(self):
         if self.input_type in [self.INPUT_TYPE_CHOICES.single, self.INPUT_TYPE_CHOICES.multiple]:
@@ -66,6 +62,10 @@ class Label(LabelBase):
         else:
             # input number or bool
             return self.cid
+
+
+class Label(LabelBase):
+    pass
 
     @property
     def linked(self):
