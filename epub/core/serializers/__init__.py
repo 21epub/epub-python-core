@@ -2,5 +2,6 @@ from ._content import (
     CommonListCreateSerializers,
     CommonRetrieveUpdateDeleteSerializer,
     CommonSortSerializer,
-    CommonFolderListCreateSerializers
+    CommonFolderListCreateSerializers,
+    CommonBatchCreateSerializer,
 )

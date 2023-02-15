@@ -43,6 +43,7 @@ urlpatterns = [
             "app_name": "books",
             "model_name": "Book",
             "user_filter": ["user_id", "subuser_id"],
+            "order_by": "position",
         },
     ),
 ]
@@ -51,6 +52,7 @@ urlpatterns = [
 	app_name：应用名，如：epub_books
 	model_name: 模型名， 如：Book
 	user_filter: 筛选列表， 如果传user_id或subuser_id 则获取分类列表信息的时候会根据当前请求的user_id或subuser_id进行筛选
+    order_by: 排序字段， 默认按照 position 排序，可配置 "-position" 倒序排列
 
 3：为内容模块的models添加字段
 例：

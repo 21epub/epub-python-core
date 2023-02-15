@@ -40,7 +40,9 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 parent = self.Meta.model.objects.get(id=parent_id)
                 attrs["parent"] = parent
             except self.Meta.model.DoesNotExist:
-                raise serializers.ValidationError({"parent": f"parent {parent_id} not exists."})
+                raise serializers.ValidationError(
+                    {"parent": f"parent {parent_id} not exists."}
+                )
             setattr(self, "_parent_obj", parent)
 
     def set_position(self, attrs):
@@ -61,7 +63,9 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         """
         return dict for filter model
         """
-        raise NotImplementedError("apply a dict for get max position obj when attrs has no attribute 'parent'.")
+        raise NotImplementedError(
+            "apply a dict for get max position obj when attrs has no attribute 'parent'."
+        )
 
     def set_extra_attrs(self, attrs):
         """
@@ -83,24 +87,18 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
         self.set_position(attrs)
         return attrs
 
-    @classmethod
-    def get_children(cls, obj, order_by="position"):
+    def get_children(self, obj):
+        order_by = getattr(self.context.get("view"), "kwargs", {}).get(
+            "order_by", "position"
+        )
         try:
-            ser = cls(obj.children.order_by(order_by), many=True)
+            ser = self.__class__(obj.children.order_by(order_by), many=True)
         except AttributeError:
             return []
         return ser.data
 
-    def create(self, validated_data):
-        return super().create(validated_data)
-
 
 class CommonFolderListCreateSerializers(CommonListCreateSerializers):
-
-    @classmethod
-    def get_children(cls, obj, order_by="-position"):
-        return super().get_children(obj, order_by=order_by)
-
     def get_position_filter_params(self, attrs):
         filter_params = {}
         if "user_id" in attrs:
@@ -194,9 +192,7 @@ class CommonSortSerializer(serializers.ModelSerializer):
         else:
             # 作为子元素移动到一个元素的最后位置
             parent_obj = app_model.objects.get(pk=parent)
-            current_max_position = app_model.get_current_max_position(
-                parent=parent_obj
-            )
+            current_max_position = app_model.get_current_max_position(parent=parent_obj)
             if current_max_position:
                 position = current_max_position + app_model.POSITION_STEP
             else:
