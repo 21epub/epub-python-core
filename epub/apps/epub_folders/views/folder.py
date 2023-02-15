@@ -26,7 +26,8 @@ class FolderListCreateAPIView(CreateResponseMixin, generics.ListCreateAPIView):
         return super().get_serializer(*args, **kwargs)
 
     def get_queryset(self):
-        queryset = Folder.objects.filter(parent=None).order_by("-position")
+        order_by = self.kwargs.get("order_by", "position")
+        queryset = Folder.objects.filter(parent=None).order_by(order_by)
         return queryset
 
 

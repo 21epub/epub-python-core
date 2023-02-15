@@ -19,7 +19,8 @@ class CategoryListCreateAPIView(CreateResponseMixin, generics.ListCreateAPIView)
     filter_backends = [CommonTypeFilterBackend, CommonUserFilterBackend]
 
     def get_queryset(self):
-        queryset = Category.objects.filter(parent=None).order_by("position")
+        order_by = self.kwargs.get("order_by", "position")
+        queryset = Category.objects.filter(parent=None).order_by(order_by)
         return queryset
 
 
