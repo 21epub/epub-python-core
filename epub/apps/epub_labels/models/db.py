@@ -23,7 +23,9 @@ class LabelMixin(models.Model):
 
 
 class LabelBase(BasicContentModel):
-    VALUE_TYPE_CHOICES = Choices((0, "text", _("text")), (1, "number", _("number")), (3, "bool", _("bool")))
+    VALUE_TYPE_CHOICES = Choices(
+        (0, "text", _("text")), (1, "number", _("number")), (3, "bool", _("bool"))
+    )
     INPUT_TYPE_CHOICES = Choices(
         (0, "single", _("single")),
         (1, "multiple", _("multiple")),
@@ -52,7 +54,10 @@ class LabelBase(BasicContentModel):
 
     @property
     def filter_lookup(self):
-        if self.input_type in [self.INPUT_TYPE_CHOICES.single, self.INPUT_TYPE_CHOICES.multiple]:
+        if self.input_type in [
+            self.INPUT_TYPE_CHOICES.single,
+            self.INPUT_TYPE_CHOICES.multiple,
+        ]:
             # list search
             return "{}__contains".format(self.cid)
 
@@ -94,7 +99,7 @@ class AppLabel(models.Model):
     required = models.BooleanField(default=False)
     show_in_list = models.BooleanField(default=False)
     can_query = models.BooleanField(default=False)
-    linked_app = models.CharField(max_length=15, db_index=True)
+    linked_app = models.CharField(max_length=32, db_index=True)
 
     @classmethod
     def get_filter_mappings(
