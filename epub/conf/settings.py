@@ -19,17 +19,17 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = []
 
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="your-secret-key")
 
 # Parse database connection url strings like psql://user:pass@127.0.0.1:8458/db
 DATABASES = {
     # read os.environ['DATABASE_URL'] and raises ImproperlyConfigured exception if not found
-    "default": env.db()
+    "default": env.db(default="sqlite:///db.sqlite3")
 }
 
 CACHES = {
     # read os.environ['CACHE_URL'] and raises ImproperlyConfigured exception if not found
-    "default": env.cache()
+    "default": env.cache(default="locmemcache://")
 }
 
 
