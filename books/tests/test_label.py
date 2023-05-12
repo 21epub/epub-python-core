@@ -127,7 +127,9 @@ class LabelContentDB(TestCase):
         url = reverse("book:book_list_api", kwargs={"book_type": "cbt"})
         query_params = {"label.height": "error type"}
         res = self.client.get(url, data=query_params)
-        self.assertEqual(res.status_code, 400)
+        # 给错误的类型，从报错修改为忽略这个条件
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data.get("data").get("sum"), 4)
 
         query_params = {"label.module": "engine4"}
         res = self.client.get(url, data=query_params)
