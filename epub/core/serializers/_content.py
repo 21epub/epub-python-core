@@ -191,12 +191,11 @@ class CommonSortSerializer(serializers.ModelSerializer):
             position = before_obj.position + app_model.POSITION_STEP
         else:
             # 作为子元素移动到一个元素的最后位置
-            parent_obj = app_model.objects.get(pk=parent)
-            current_max_position = app_model.get_current_max_position(parent=parent_obj)
-            if current_max_position:
-                position = current_max_position + app_model.POSITION_STEP
-            else:
-                position = app_model.POSITION_STEP
+            try:
+                parent_obj = app_model.objects.get(pk=parent)
+            except (self.Meta.model.DoesNotExist, ValueError):
+                parent_obj = None
+            position = app_model.get_next_position(parent=parent_obj)
 
         target_obj.position = position
         target_obj.parent = parent_obj

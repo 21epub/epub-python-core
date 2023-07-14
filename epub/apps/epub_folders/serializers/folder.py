@@ -43,7 +43,7 @@ class FolderRetrieveUpdateDeleteSerializer(CommonRetrieveUpdateDeleteSerializer)
 class FolderSortSerializer(CommonSortSerializer):
     class Meta:
         model = Folder
-        fields = ["id", "position", "parent"]
+        fields = ["id", "position", "parent_id"]
 
 
 class FolderBatchSerializers(serializers.ModelSerializer):
