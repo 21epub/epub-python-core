@@ -265,6 +265,31 @@ class TestBookFolder(TestCase):
         self.assertEqual(children_data[1].get("title"), "child3")
         self.assertEqual(children_data[2].get("title"), "child1")
 
+        self.client.post(
+            reverse("book:epub_folders:folder_sort_api", kwargs={"book_type": "h5"}),
+            data={
+                "target": child3.id,
+                "parent": child1.id,
+            },
+            content_type="application/json",
+        )
+        child3.refresh_from_db()
+        self.assertEqual(child3.parent, child1)
+        self.assertEqual(child3.position, Folder.POSITION_STEP)
+
+        self.client.post(
+            reverse("book:epub_folders:folder_sort_api", kwargs={"book_type": "h5"}),
+            data={
+                "target": child3.id,
+                "parent": "unknown",
+            },
+            content_type="application/json",
+        )
+        child3.refresh_from_db()
+        self.assertEqual(child3.parent, None)
+        self.assertEqual(child3.position, root.POSITION_STEP+Folder.POSITION_STEP)
+
+
     def test_batch_folder(self):
         test_user = User.objects.create_user(username="test")
         book1 = Book.objects.create(title="book1", user=test_user)
