@@ -52,14 +52,21 @@ class TestBookFolder(TestCase):
         data = {"title": "book_root", "parent_id": 1000000}
         res = self.client.post(url, data)
         self.assertEqual(res.status_code, 400)
-        self.assertEqual(res.json(), {"parent": [f"parent {data['parent_id']} not exists."]})
+        self.assertEqual(
+            res.json(), {"parent": [f"parent {data['parent_id']} not exists."]}
+        )
 
     def test_bulk_create_folder(self):
-        folder = Folder.objects.create(title="root_folder", user_id=1, subuser_id=1, folder_type="folder_type")
+        folder = Folder.objects.create(
+            title="root_folder", user_id=1, subuser_id=1, folder_type="folder_type"
+        )
         url = reverse(
             "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
         )
-        data = [{"title": "branch_1", "parent": folder.id}, {"title": "branch_2", "parent": folder.id}]
+        data = [
+            {"title": "branch_1", "parent": folder.id},
+            {"title": "branch_2", "parent": folder.id},
+        ]
         res = self.client.post(url, json.dumps(data), content_type="application/json")
         self.assertEqual(res.status_code, 200)
         results = res.json()["data"]["results"]
@@ -71,13 +78,20 @@ class TestBookFolder(TestCase):
         max_position_with_no_parent = Folder.get_current_max_position()
 
         data = [{"title": "branch_3"}, {"title": "branch_4"}]
-        res = self.client.post(url, data=json.dumps(data), content_type="application/json")
+        res = self.client.post(
+            url, data=json.dumps(data), content_type="application/json"
+        )
         self.assertEqual(res.status_code, 200)
         results = res.json()["data"]["results"]
         self.assertEqual(results[0]["id"], None)
-        self.assertEqual(results[0]["position"], max_position_with_no_parent + Folder.POSITION_STEP)
+        self.assertEqual(
+            results[0]["position"], max_position_with_no_parent + Folder.POSITION_STEP
+        )
         self.assertEqual(results[0]["title"], data[0]["title"])
-        self.assertEqual(results[1]["position"], max_position_with_no_parent + Folder.POSITION_STEP * 2)
+        self.assertEqual(
+            results[1]["position"],
+            max_position_with_no_parent + Folder.POSITION_STEP * 2,
+        )
         self.assertEqual(results[1]["title"], data[1]["title"])
         self.assertEqual(results[1]["id"], None)
 
@@ -287,8 +301,7 @@ class TestBookFolder(TestCase):
         )
         child3.refresh_from_db()
         self.assertEqual(child3.parent, None)
-        self.assertEqual(child3.position, root.POSITION_STEP+Folder.POSITION_STEP)
-
+        self.assertEqual(child3.position, root.POSITION_STEP + Folder.POSITION_STEP)
 
     def test_batch_folder(self):
         test_user = User.objects.create_user(username="test")
@@ -471,3 +484,113 @@ class TestBookFolder(TestCase):
         self.assertEqual(res.status_code, 200)
         result = res.json()["data"]["results"][0]
         self.assertEqual(result["position"], f1.position)
+
+
+class TestFolderInsert(TestCase):
+    def setUp(self) -> None:
+        for i in range(3):
+            Folder.objects.create(
+                title=f"folder{i+1}",
+                user_id=1,
+                subuser_id=1,
+                folder_type="folder_type",
+                position=Folder.POSITION_STEP * (i + 1),
+            )
+
+    def test_insert_folder_with_before_position(self):
+        folder2 = Folder.objects.get(title="folder2")
+        folder3 = Folder.objects.get(title="folder3")
+
+        data1 = {"title": "folder4", "before": folder2.id}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+        res = self.client.post(url, data1)
+        self.assertEqual(
+            res.json()["data"]["results"][0]["position"],
+            (folder2.position + folder3.position) / 2,
+        )
+
+    def test_insert_folder_to_last_with_before(self):
+        folder3 = Folder.objects.get(title="folder3")
+
+        data1 = {"title": "folder4", "before": folder3.id}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+
+        res = self.client.post(url, data1)
+        self.assertEqual(
+            res.json()["data"]["results"][0]["position"],
+            folder3.position + Folder.POSITION_STEP,
+        )
+
+    def test_insert_folder_to_first_with_after(self):
+
+        folder1 = Folder.objects.get(title="folder1")
+
+        data1 = {"title": "folder4", "after": folder1.id}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+        res = self.client.post(url, data1)
+        self.assertEqual(
+            res.json()["data"]["results"][0]["position"], folder1.position / 2
+        )
+
+    def test_insert_folder_with_after(self):
+        folder2 = Folder.objects.get(title="folder2")
+        folder3 = Folder.objects.get(title="folder3")
+
+        data1 = {"title": "folder4", "after": folder3.id}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+
+        res = self.client.post(url, data1)
+        self.assertEqual(
+            res.json()["data"]["results"][0]["position"],
+            (folder2.position + folder3.position) / 2,
+        )
+
+    def test_insert_reset(self):
+        Folder.objects.filter(title="folder1").update(position=1)
+        Folder.objects.filter(title="folder2").update(position=2)
+        Folder.objects.filter(title="folder3").update(position=3)
+
+        folder2 = Folder.objects.get(title="folder2")
+        folder1 = Folder.objects.get(title="folder1")
+
+        data1 = {"title": "folder4", "after": folder2.id}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+
+        res = self.client.post(url, data1)
+
+        folder1.refresh_from_db()
+        folder2.refresh_from_db()
+        self.assertEqual(
+            res.json()["data"]["results"][0]["position"],
+            (folder2.position + folder1.position) / 2,
+        )
+
+    def test_insert_with_before_not_exists(self):
+        data1 = {"title": "folder4", "before": 1000}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+
+        res = self.client.post(url, json.dumps(data1), content_type="application/json")
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json(), {"before": ["insert before not exists."]})
+
+    def test_insert_with_after_not_exists(self):
+        data1 = {"title": "folder4", "after": 1000}
+        url = reverse(
+            "book:epub_folders:folder_list_create_api", kwargs={"book_type": "h5"}
+        )
+
+        res = self.client.post(url, json.dumps(data1), content_type="application/json")
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json(), {"after": ["insert after not exists."]})
