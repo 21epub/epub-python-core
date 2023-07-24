@@ -14,6 +14,8 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     parent = serializers.IntegerField(required=False, write_only=True)
     parent_id = serializers.IntegerField(required=False, write_only=True)
+    before = serializers.IntegerField(required=False, write_only=True)
+    after = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         list_serializer_class = CommonBatchCreateSerializer
@@ -46,18 +48,83 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
             setattr(self, "_parent_obj", parent)
 
     def set_position(self, attrs):
+        position = self.get_position(attrs)
+
+        attrs["position"] = position
+        setattr(self, "_previous_position", position)
+
+    def get_position(self, attrs):
         if hasattr(self, "_previous_position"):
             _previous_position = getattr(self, "_previous_position", None)
             position = _previous_position + self.Meta.model.POSITION_STEP
         else:
+            # 在指定位置前或后面创建
+            if "before" in attrs or "after" in attrs:
+                position = self.get_insert_position(attrs)
+                return position
             if "parent" in attrs:
                 filter_params = {"parent": attrs.get("parent", None)}
             else:
                 filter_params = self.get_position_filter_params(attrs)
             position = self.Meta.model.get_next_position(**filter_params)
+        return position
 
-        attrs["position"] = position
-        setattr(self, "_previous_position", position)
+    def get_insert_position(self, attrs):
+        """
+        before_id 插入到指定对象之后
+        after_id  插入到指定对象之前
+        """
+        before_id = attrs.get("before", None)
+        after_id = attrs.get("after", None)
+        if before_id:
+            try:
+                before_obj = self.Meta.model.objects.get(id=before_id)
+            except self.Meta.model.DoesNotExist:
+                raise serializers.ValidationError(
+                    {"before": ["insert before not exists."]}
+                )
+            parent_id = before_obj.parent_id
+            after_obj = (
+                self.Meta.model.objects.filter(
+                    parent_id=parent_id, position__gt=before_obj.position
+                )
+                .order_by("position")
+                .first()
+            )
+            if after_obj:
+                position = (before_obj.position + after_obj.position) / 2
+            else:
+                position = before_obj.position + self.Meta.model.POSITION_STEP
+        else:
+            # after_id
+            try:
+                after_obj = self.Meta.model.objects.get(id=after_id)
+            except self.Meta.model.DoesNotExist:
+                raise serializers.ValidationError(
+                    {"after": ["insert after not exists."]}
+                )
+            parent_id = after_obj.parent_id
+            before_obj = (
+                self.Meta.model.objects.filter(
+                    parent_id=parent_id, position__lt=after_obj.position
+                )
+                .order_by("-position")
+                .first()
+            )
+            if before_obj:
+                position = (before_obj.position + after_obj.position) / 2
+            else:
+                position = after_obj.position / 2
+
+        if position <= 2:
+            self.Meta.model.reset_position(parent_id=parent_id)
+            return self.get_insert_position(attrs)
+
+        attrs.pop("parent", None)
+        attrs.pop("before", None)
+        attrs.pop("after", None)
+        attrs["parent_id"] = parent_id
+        return position
 
     def get_position_filter_params(self, attrs):
         """
@@ -139,13 +206,6 @@ class CommonSortSerializer(serializers.ModelSerializer):
         instance = validated_data.get("target_obj")
         return instance
 
-    def reset_position(self, parent):
-        model_name = self.Meta.model
-        all_obj = model_name.objects.filter(parent=parent).order_by("position")
-        for cnt, obj in enumerate(all_obj, 1):
-            obj.position = model_name.POSITION_STEP * cnt
-            obj.save()
-
     def set_position(self, before, after, parent):
         app_model = self.Meta.model
         target_obj = self.target_obj
@@ -159,7 +219,7 @@ class CommonSortSerializer(serializers.ModelSerializer):
             position = (before_obj.position + after_obj.position) / 2
 
             if position <= 2:
-                self.reset_position(parent_obj)
+                self.Meta.model.reset_position(parent=parent_obj)
 
                 before_obj = app_model.objects.filter(pk=before).first()
                 after_obj = app_model.objects.filter(pk=after).first()
@@ -176,7 +236,7 @@ class CommonSortSerializer(serializers.ModelSerializer):
 
             if position <= 2:
                 # 重新编排所有对象的顺序
-                self.reset_position(parent=parent_obj)
+                self.Meta.model.reset_position(parent=parent_obj)
 
                 # 顺序重置后再次获取新的 position
 

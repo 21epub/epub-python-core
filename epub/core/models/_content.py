@@ -115,7 +115,7 @@ class BaseCommonModel(Model):
     此公共模型用于封装Category和Folder的公共属性和方法
     """
 
-    POSITION_STEP = 2 ** 16
+    POSITION_STEP = 2**16
 
     title = models.CharField(max_length=255)
     parent = ForeignKey(
@@ -138,7 +138,12 @@ class BaseCommonModel(Model):
         position = None
         if "parent" not in kwargs:
             kwargs["parent"] = None
-        queryset = cls.objects.filter(**kwargs).order_by("-position").values("position").first()
+        queryset = (
+            cls.objects.filter(**kwargs)
+            .order_by("-position")
+            .values("position")
+            .first()
+        )
         if queryset:
             position = queryset.get("position")
         return position
@@ -163,6 +168,13 @@ class BaseCommonModel(Model):
 
         descendant_list.append(self.id)
         return list(set(descendant_list))
+
+    @classmethod
+    def reset_position(cls, **kwargs):
+        all_obj = cls.objects.filter(**kwargs).order_by("position")
+        for cnt, obj in enumerate(all_obj, 1):
+            obj.position = cls.POSITION_STEP * cnt
+            obj.save()
 
     class Meta:
         abstract = True
