@@ -83,6 +83,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"before": ["insert before not exists."]}
                 )
+            parent_obj = before_obj.parent_id
             parent_id = before_obj.parent_id
             after_obj = (
                 self.Meta.model.objects.filter(
@@ -103,6 +104,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"after": ["insert after not exists."]}
                 )
+            parent_obj = after_obj.parent_id
             parent_id = after_obj.parent_id
             before_obj = (
                 self.Meta.model.objects.filter(
@@ -120,10 +122,9 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
             self.Meta.model.reset_position(parent_id=parent_id)
             return self.get_insert_position(attrs)
 
-        attrs.pop("parent", None)
+        attrs["parent"] = parent_obj
         attrs.pop("before", None)
         attrs.pop("after", None)
-        attrs["parent_id"] = parent_id
         return position
 
     def get_position_filter_params(self, attrs):
