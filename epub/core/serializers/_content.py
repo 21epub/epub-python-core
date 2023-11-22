@@ -83,7 +83,7 @@ class CommonListCreateSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"before": ["insert before not exists."]}
                 )
-            parent_obj = before_obj.parent_id
+            parent_obj = before_obj.parent
             parent_id = before_obj.parent_id
             after_obj = (
                 self.Meta.model.objects.filter(
