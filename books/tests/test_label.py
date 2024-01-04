@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.test import TestCase
 from django.urls import reverse
 
@@ -11,7 +12,12 @@ class LabelContentDB(TestCase):
         User = get_user_model()
         self.user1 = User.objects.create_user(username="test")
 
-        label = {"height": 100, "tags": ["one", "two", "three"], "module": "engine", "correct": True}
+        label = {
+            "height": 100,
+            "tags": ["one", "two", "three"],
+            "module": "engine",
+            "correct": True,
+        }
         book = Book(
             title="test",
             label=label,
@@ -19,7 +25,12 @@ class LabelContentDB(TestCase):
         )
         book.save()
 
-        label = {"height": 102, "tags": ["one", "threee"], "module": "engine2", "correct": True}
+        label = {
+            "height": 102,
+            "tags": ["one", "threee"],
+            "module": "engine2",
+            "correct": True,
+        }
         book = Book(
             title="test2",
             label=label,
@@ -43,6 +54,14 @@ class LabelContentDB(TestCase):
         )
         book.save()
 
+        label = {"height": "", "tags": [], "module": ""}
+        book = Book(
+            title="test5",
+            label=label,
+            user_id=self.user1.id,
+        )
+        book.save()
+
     def test_search(self):
         bs = Book.objects.filter(label__tags__contains="one")
         self.assertEqual(bs.count(), 2)
@@ -51,15 +70,20 @@ class LabelContentDB(TestCase):
         self.assertEqual(bs.count(), 1)
 
         bs = Book.objects.filter(label__tags__contained_by=["four", "two", "three"])
+        # 子集
         # 1. {'tags': ['four', 'three']}
         # 2. {'tags': ['two']}
-        self.assertEqual(bs.count(), 2)
+        # 3. {'tags': []}
+        self.assertEqual(bs.count(), 3)
 
         bs = Book.objects.filter(label__height=103)
         self.assertEqual(bs.count(), 1)
 
+        bs = Book.objects.filter(label__height__lte=102)
+        self.assertEqual(bs.count(), 2)
+
         bs = Book.objects.filter(label__height__gte=102)
-        self.assertEqual(bs.count(), 3)
+        self.assertEqual(bs.count(), 4)
 
         bs = Book.objects.filter(label__module="engine2")
         self.assertEqual(bs.count(), 1)
@@ -78,6 +102,48 @@ class LabelContentDB(TestCase):
 
         bs = Book.objects.filter(label__correct=False)
         self.assertEqual(bs.count(), 1)
+
+        # 同一个标签支持多选，条件关系是 or
+        # 不同标签之间，条件关系是 and
+        bs = Book.objects.filter(Q(label__height=103) | Q(label__height=104))
+        self.assertEqual(bs.count(), 2)
+
+        bs = Book.objects.filter(
+            Q(label__tags__contains="one") | Q(label__tags__contains="three")
+        )
+        self.assertEqual(bs.count(), 3)
+
+        bs = Book.objects.filter(
+            Q(label__module__contains="engine2") | Q(label__module__contains="engine3")
+        )
+        self.assertEqual(bs.count(), 2)
+
+        bs = Book.objects.filter(Q(label__correct=True) | Q(label__correct=False))
+        self.assertEqual(bs.count(), 3)
+
+        bs = Book.objects.filter(
+            Q(label__correct=True) | Q(label__correct=False),
+            Q(label__module__contains="engine2") | Q(label__module__contains="engine3"),
+        )
+        self.assertEqual(bs.count(), 2)
+
+        bs = Book.objects.filter(
+            Q(label__correct=True) | Q(label__correct=False),
+            Q(label__module__contains="engine") | Q(label__module__contains="engine4"),
+        )
+        self.assertEqual(bs.count(), 1)
+
+        bs = Book.objects.filter(
+            Q(label__module__contains="engine") | Q(label__module__contains="engine4"),
+            label__correct=True,
+        )
+        self.assertEqual(bs.count(), 1)
+
+        bs = Book.objects.filter(
+            Q(label__module__contains="engine") | Q(label__module__contains="engine4"),
+            label__correct=False,
+        )
+        self.assertEqual(bs.count(), 0)
 
     def create_label(self):
 
@@ -129,7 +195,7 @@ class LabelContentDB(TestCase):
         res = self.client.get(url, data=query_params)
         # 给错误的类型，从报错修改为忽略这个条件
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data.get("data").get("sum"), 4)
+        self.assertEqual(res.data.get("data").get("sum"), 5)
 
         query_params = {"label.module": "engine4"}
         res = self.client.get(url, data=query_params)
@@ -157,4 +223,62 @@ class LabelContentDB(TestCase):
 
         query_params = {"label.correct": "null"}
         res = self.client.get(url, data=query_params)
-        self.assertEqual(res.data.get("data").get("sum"), 4)
+        self.assertEqual(res.data.get("data").get("sum"), 2)
+
+        query = "label.height=103&label.height=104"
+        url = url + "?" + query
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 2)
+
+        _query = "label.tags=one&label.tags=three"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 3)
+        query = _query
+
+        _query = "label.module=engine2&label.module=engine3"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 2)
+        query = _query
+
+        _query = "label.correct=true&label.correct=false"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 3)
+        query = _query
+
+        _query = "label.correct=true&label.correct=false&label.module=engine2&label.module=engine3"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 2)
+        query = _query
+
+        _query = "label.correct=true&label.correct=false&label.module=engine&label.module=engine4"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 1)
+        query = _query
+
+        _query = "label.correct=true&label.module=engine&label.module=engine4"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 1)
+        query = _query
+
+        _query = "label.correct=false&label.module=engine&label.module=engine4"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 0)
+        query = _query
+
+        _query = "label.correct=null&label.module=engine4"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 1)
+        query = _query
+
+        _query = "label.correct=null&label.module=engine"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 0)

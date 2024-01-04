@@ -8,7 +8,6 @@ from django.utils.translation import ugettext as _
 from epub.core.models import BasicContentModel
 from model_utils import Choices
 
-PREFIX_FILTER_CONSTANT = "label."
 
 def gen_serial_number():
     now = datetime.datetime.now().strftime("%Y%m%d")
@@ -126,36 +125,6 @@ class AppLabel(models.Model):
                 }
 
         return mapppings
-
-    @staticmethod
-    def get_filter_params_for_orm(label_linked_app, query_params, label_field="label", label_using_db="default"):
-        label_filter = {}
-
-        filter_mappings = AppLabel.get_filter_mappings(
-            linked_app=label_linked_app,
-            jsonfield_name=label_field,
-            label_using_db=label_using_db,
-        )
-        for label_param, map_lookup_type in filter_mappings.items():
-            label_value = query_params.get(
-                PREFIX_FILTER_CONSTANT + label_param, None
-            )
-            if label_value:
-                lookup_value = map_lookup_type["lookup"]
-                value_type = map_lookup_type["value_type"]
-                if value_type == Label.VALUE_TYPE_CHOICES.number:
-                    try:
-                        label_filter[lookup_value] = float(label_value)
-                    except ValueError:
-                        pass
-                elif value_type == Label.VALUE_TYPE_CHOICES.bool:
-                    if label_value == "true":
-                        label_filter[lookup_value] = True
-                    elif label_value == "false":
-                        label_filter[lookup_value] = False
-                else:
-                    label_filter[lookup_value] = label_value
-        return label_filter
 
     class Meta:
         unique_together = ["label", "linked_app"]
