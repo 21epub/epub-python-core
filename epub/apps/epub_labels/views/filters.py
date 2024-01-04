@@ -13,6 +13,7 @@ class LabelFilterMixin:
         query_params,
         label_field="label",
         label_using_db="default",
+        view=None,
     ):
         # 同一个标签支持多选，条件关系是 or
         # 不同标签之间，条件关系是 and
@@ -21,6 +22,7 @@ class LabelFilterMixin:
             label_linked_app=label_linked_app,
             label_field=label_field,
             label_using_db=label_using_db,
+            view=view,
         )
         label_query = Q()
         for label_param, map_lookup_type in filter_mappings.items():
@@ -74,7 +76,7 @@ class LabelFilterMixin:
         return label_query
 
     def get_filter_mappings(
-        self, label_linked_app, label_field="label", label_using_db="default"
+        self, label_linked_app, label_field="label", label_using_db="default", view=None
     ):
         return AppLabel.get_filter_mappings(
             linked_app=label_linked_app,
@@ -95,7 +97,7 @@ class LabelFilter(LabelFilterMixin, BaseFilterBackend):
         label_field = getattr(view, "label_field", "label")
 
         return self.get_filter_params_for_orm(
-            label_linked_app, request.query_params, label_field, label_using_db
+            label_linked_app, request.query_params, label_field, label_using_db, view
         )
 
     def filter_queryset(self, request, queryset, view):
