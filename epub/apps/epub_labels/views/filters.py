@@ -33,29 +33,11 @@ class LabelFilterMixin:
             for _label_value in label_value:
                 if _label_value == "null":
                     # 表示查找未设置值过 或 删除值的标签: 没有这个key 或 这个key的值为空值, False除外，因为有布尔类型的标签
-                    single_query = (
+                    single_query |= (
                         ~Q(**{f"{PREFIX_FILTER_CONSTANT}__has_key": label_param})
-                        | Q(
-                            **{
-                                f"{PREFIX_FILTER_CONSTANT}__contains": {
-                                    f"{label_param}": []
-                                }
-                            }
-                        )
-                        | Q(
-                            **{
-                                f"{PREFIX_FILTER_CONSTANT}__contains": {
-                                    f"{label_param}": None
-                                }
-                            }
-                        )
-                        | Q(
-                            **{
-                                f"{PREFIX_FILTER_CONSTANT}__contains": {
-                                    f"{label_param}": ""
-                                }
-                            }
-                        )
+                        | Q(**{f"{PREFIX_FILTER_CONSTANT}__{label_param}__exact": []})
+                        | Q(**{f"{PREFIX_FILTER_CONSTANT}__{label_param}__exact": None})
+                        | Q(**{f"{PREFIX_FILTER_CONSTANT}__{label_param}__exact": ""})
                     )
                     continue
                 lookup_value = map_lookup_type["lookup"]

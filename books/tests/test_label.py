@@ -63,6 +63,31 @@ class LabelContentDB(TestCase):
         book.save()
 
     def test_search(self):
+
+        bs = Book.objects.filter(~Q(label__has_key="height"))
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(label__height__exact="")
+        self.assertEqual(bs.count(), 1)
+
+        bs = Book.objects.filter(label__height__exact=None)
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(label__height__exact=[])
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(~Q(label__has_key="tags"))
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(label__tags__exact="")
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(label__tags__exact=None)
+        self.assertEqual(bs.count(), 0)
+
+        bs = Book.objects.filter(label__tags__exact=[])
+        self.assertEqual(bs.count(), 1)
+
         bs = Book.objects.filter(label__tags__contains="one")
         self.assertEqual(bs.count(), 2)
 
@@ -282,3 +307,9 @@ class LabelContentDB(TestCase):
         url = url.replace(query, _query)
         res = self.client.get(url)
         self.assertEqual(res.data.get("data").get("sum"), 0)
+        query = _query
+
+        _query = "label.tags=null"
+        url = url.replace(query, _query)
+        res = self.client.get(url)
+        self.assertEqual(res.data.get("data").get("sum"), 1)
