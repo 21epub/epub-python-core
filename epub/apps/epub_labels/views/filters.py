@@ -31,6 +31,8 @@ class LabelFilterMixin:
             )
             single_query = Q()
             for _label_value in label_value:
+                if not _label_value:
+                    continue
                 if _label_value == "null":
                     # 表示查找未设置值过 或 删除值的标签: 没有这个key 或 这个key的值为空值, False除外，因为有布尔类型的标签
                     single_query |= (
