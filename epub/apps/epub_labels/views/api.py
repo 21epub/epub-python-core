@@ -14,6 +14,7 @@ class LableListAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     serializer_class = LabelSerializer
     pagination_class = LargeResultsSetPagination
     permissions = {
+        "METHOD": "DIRECTLY",
         "POST": "admin.label.menu",
     }
 
@@ -47,6 +48,7 @@ class AppLabelListAPIView(CreateResponseMixin, generics.ListCreateAPIView):
     serializer_class = AppLabelSerializers
     pagination_class = LargeResultsSetPagination
     permissions = {
+        "METHOD": "DIRECTLY",
         "POST": "admin.label.menu",
     }
 
