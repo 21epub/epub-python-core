@@ -32,6 +32,7 @@ class LabelBase(BasicContentModel):
         (1, "multiple", _("multiple")),
         (2, "input", _("input")),
         (3, "bool", _("bool")),
+        (5, "expression", _("expression")),
     )
 
     user_id = models.IntegerField(default=None, null=True)
@@ -49,6 +50,7 @@ class LabelBase(BasicContentModel):
     allow_check_parent = models.BooleanField(default=False, null=True)  # 父节点可选
     allow_add_items = models.BooleanField(default=False, null=True)  # 可自由添加标签项
     items = models.JSONField(blank=True, null=True)
+    expression = models.TextField(null=True, blank=True, help_text="计算项表达式")
 
     class Meta:
         abstract = True

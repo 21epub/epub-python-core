@@ -1,3 +1,4 @@
+import json
 import random
 
 from django.test import TestCase
@@ -8,6 +9,28 @@ from epub.apps.epub_labels.serializers import AppLabelSerializers
 
 
 class TestLabelList(TestCase):
+    def test_expression_label(self):
+        url = reverse("label_api_url:label_list_api")
+        res = self.client.post(
+            url,
+            data={
+                "title": "计算项",
+                "cid": "expression",
+                "value_type": "bool",
+                "input_type": "expression",
+            },
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"]["results"][0]["title"], "计算项")
+        self.assertEqual(res.json()["data"]["results"][0]["cid"], "expression")
+        self.assertEqual(res.json()["data"]["results"][0]["value_type"], "bool")
+        self.assertEqual(res.json()["data"]["results"][0]["input_type"], "expression")
+        self.assertEqual(res.json()["data"]["results"][0]["expression"], None)
+
+        res = self.client.patch(reverse("label_api_url:label_detail_api", kwargs={"pk": res.json()["data"]["results"][0]["id"]}), data=json.dumps({"expression": "1+1"}), content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"]["results"][0]["expression"], "1+1")
+
     def test_create_label(self):
         url = reverse("label_api_url:label_list_api")
         res = self.client.get(url)
