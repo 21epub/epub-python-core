@@ -39,13 +39,14 @@ class LogEntry(CreatorModelMixin, models.Model):
         _("action time"),
         default=timezone.now,
         editable=False,
+        db_index=True,
     )
     action_level = models.PositiveSmallIntegerField(
         _("action level"), choices=ACTION_LEVEL_CHOICES, default=INFO
     )
     action_type = models.PositiveSmallIntegerField(_("action type"))
     action_ip = models.GenericIPAddressField()
-    action_name = models.CharField(_("action name"), max_length=100)
+    action_name = models.TextField(_("action name"), blank=True)
 
     object_type = models.CharField(max_length=100)
     object_id = models.CharField(_("object id"), max_length=100, blank=True, null=True)
