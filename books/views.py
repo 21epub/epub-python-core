@@ -2,10 +2,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, serializers
 
+from epub.apps.account.filters import DataDeptFilterBackend
+from epub.apps.account.permissions import CheckUserPermission
 # Create your views here.
 from epub.apps.epub_labels.views.filters import LabelFilter
 from epub.apps.epub_logs.mixins import LoggingViewSetMixin
 from epub.apps.epub_remarks.views.api import RemarkListCreateAPIView
+from epub.core.http.mixins import RetrieveUpdateDeleteResponseMixin
 from epub.core.http.renderer import JSRenderer
 from books.models import Book
 from books.serializers import BookListSerializer
@@ -27,7 +30,15 @@ class BookListAPIView(LoggingViewSetMixin, generics.UpdateAPIView, generics.List
         ContentCategoryFilterBackend,
         ContentFolderFilterBackend,
         LabelFilter,
+        DataDeptFilterBackend
     ]
+    permission_classes = [CheckUserPermission]
+
+    permissions = {
+        "POST": "create",
+        "GET": "list",
+        "PATCH": "update",
+    }
 
     label_linked_app = "cbt"
 
@@ -51,6 +62,15 @@ class BookListAPIView(LoggingViewSetMixin, generics.UpdateAPIView, generics.List
         if isinstance(kwargs.get("data", {}), list):
             kwargs["many"] = True
         return super().get_serializer(*args, **kwargs)
+
+class BookSingleAPIView(RetrieveUpdateDeleteResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BookListSerializer
+    queryset = Book.objects.all()
+    permission_classes = [CheckUserPermission]
+    permissions = {
+        "PATCH": "update",
+        "DELETE": "delete",
+    }
 
 
 class BookRemarkListCreateAPIView(RemarkListCreateAPIView):

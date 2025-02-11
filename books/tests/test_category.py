@@ -222,9 +222,9 @@ class TestBookCategory(TestCase):
         self.assertEqual(children_data[2].get("title"), "child1")
 
     def test_batch_category(self):
-        test_user = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test_user)
-        book2 = Book.objects.create(title="book2", user=test_user)
+        test_user = User.objects.create_user(username="test", id=1)
+        book1 = Book.objects.create(title="book1", user=test_user, dept_id=1)
+        book2 = Book.objects.create(title="book2", user=test_user, dept_id=1)
         category1 = Category.objects.create(
             title="category1", user_id=1, subuser_id=1, category_type="h5"
         )
@@ -254,11 +254,11 @@ class TestBookCategory(TestCase):
         self.assertEqual(category_ids, book2_category_ids)
 
     def test_filter_book_by_category(self):
-        test = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test)
-        book2 = Book.objects.create(title="book2", user=test)
-        book3 = Book.objects.create(title="book3", user=test)
-        Book.objects.create(title="book4", user=test)
+        test = User.objects.create_user(username="test", id=1)
+        book1 = Book.objects.create(title="book1", user=test, dept_id=1)
+        book2 = Book.objects.create(title="book2", user=test, dept_id=1)
+        book3 = Book.objects.create(title="book3", user=test, dept_id=1)
+        Book.objects.create(title="book4", user=test, dept_id=1)
         category1 = Category.objects.create(
             title="category1", user_id=1, subuser_id=1, category_type="h5"
         )

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.core.cache import cache
 
 # Create your tests here.
 from rest_framework import serializers
@@ -16,6 +17,8 @@ User = get_user_model()
 
 
 class TestBookFolder(TestCase):
+    def tearDown(self):
+        cache.clear()
     def test_create_book_folders(self):
         data1 = {"title": "book_root"}
         url = reverse(
@@ -353,12 +356,12 @@ class TestBookFolder(TestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_filter_book_by_folder(self):
-        test = User.objects.create_user(username="test")
-        book1 = Book.objects.create(title="book1", user=test)
-        book2 = Book.objects.create(title="book2", user=test)
-        book3 = Book.objects.create(title="book3", user=test)
-        book4 = Book.objects.create(title="book4", user=test)
-        Book.objects.create(title="book4", user=test)
+        test = User.objects.create_user(username="test", id=1)
+        book1 = Book.objects.create(title="book1", user=test, dept_id=1)
+        book2 = Book.objects.create(title="book2", user=test, dept_id=1)
+        book3 = Book.objects.create(title="book3", user=test, dept_id=1)
+        book4 = Book.objects.create(title="book4", user=test, dept_id=1)
+        Book.objects.create(title="book4", user=test, dept_id=1)
         folder1 = Folder.objects.create(
             title="folder1", user_id=1, subuser_id=1, folder_type="h5"
         )

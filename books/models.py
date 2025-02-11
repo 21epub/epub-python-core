@@ -4,6 +4,7 @@ from django.db import models
 # Create your models here.
 from django.contrib.auth import get_user_model
 
+from epub.apps.account.permissions import CheckObjectPermissionModelMixin
 from epub.apps.epub_remarks.models import Remark
 from epub.core.models import BasicContentModel
 from epub.apps.epub_categories.models.category import Category
@@ -17,7 +18,7 @@ from epub.core.models._content import BasicContentManager
 from epub.core.models.cache import CacheModelMixin, CacheQuerySet
 
 
-class Book(CacheModelMixin, LabelMixin, BasicContentModel):
+class Book(CacheModelMixin, LabelMixin, BasicContentModel, CheckObjectPermissionModelMixin):
     UNIQUE_KEYS = ["pk", "title"]
 
     title = models.CharField(max_length=255, blank=False, db_index=True)
@@ -28,6 +29,8 @@ class Book(CacheModelMixin, LabelMixin, BasicContentModel):
         Category, related_name="book_set", default=models.CASCADE
     )
     folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True)
+    dept_id = models.IntegerField(default=None, null=True, db_index=True)
+    subuser_id = models.IntegerField(default=None, null=True, db_index=True)
     remarks = GenericRelation(Remark)
 
     objects = BasicContentManager.from_queryset(CacheQuerySet)()

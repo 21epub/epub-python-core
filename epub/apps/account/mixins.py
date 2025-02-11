@@ -44,3 +44,13 @@ class SetCreatorMixin:
         validated_data["subuser_id"] = subuser_id
         validated_data["nickname"] = nickname
         return super().create(validated_data)
+
+
+class EpubViewPermMixin:
+    """提供 get_view_perm_class 实现自定义提供view的权限"""
+
+    get_view_perm_class = None
+    def get_view_perm(self, request, view):
+        if getattr(self, "get_view_perm_class", None):
+            return self.get_view_perm_class.get_view_perm(request, view)
+        return None
