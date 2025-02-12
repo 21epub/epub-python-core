@@ -13,9 +13,9 @@ User = get_user_model()
 
 class LogTestCase(TestCase):
     def setUp(self) -> None:
-        self.test = User.objects.create_user(username="test")
-        self.book_yuwen = Book.objects.create(title="yuwen", user=self.test)
-        self.book_shuxue = Book.objects.create(title="shuxue", user=self.test)
+        self.test = User.objects.create_user(username="test", id=1)
+        self.book_yuwen = Book.objects.create(title="yuwen", user=self.test, dept_id=1)
+        self.book_shuxue = Book.objects.create(title="shuxue", user=self.test, dept_id=1)
         self.folder = Folder.objects.create(title="folder")
 
     def test_log(self):

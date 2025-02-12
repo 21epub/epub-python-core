@@ -45,13 +45,17 @@ class User(object):
         if self.subuser:
             self.subuser_id = self.subuser.get("id")
             self.subuser_name = self.subuser.get("nickname", "")
-            self.subuser_perms = self.subuser.get("perms", [])
+            self.subuser_perms = {
+                perm.get("code"): perm for perm in self.subuser.get("perms", [])
+            }
             self.subuser_is_superuser = self.subuser.get("is_superuser", False)
+            self.subuser_dept_id = self.subuser.get("dept_id", None)
         else:
             self.subuser_id = None
             self.subuser_name = None
             self.subuser_perms = []
             self.subuser_is_superuser = False
+            self.subuser_dept_id = None
 
         self.is_superuser = False
         # logger.info("kwargs results: %s" % kwargs)
@@ -70,7 +74,17 @@ class MockUserAuthentication(BaseAuthentication):
                     "id": 1,
                     "nickname": "test1",
                     "is_superuser": False,
-                },
+                    "dept_id": 1,
+                    "perms": [
+                        {"code": "cbt.list", "deps": [1]},
+                        {"code": "cbt.update", "deps": [1]},
+                        {"code": "cbt.create", "deps": [1]},
+                        {"code": "h5.list", "deps": [1]},
+                        {"code": "h5.update", "deps": [1]},
+                        {"code": "h5.create", "deps": [1]},
+                    ]
+                }
+                ,
             ),
             "token_xxxx",
         )

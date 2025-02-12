@@ -10,7 +10,7 @@ from epub.apps.epub_labels.models import Label, AppLabel
 class LabelContentDB(TestCase):
     def setUp(self) -> None:
         User = get_user_model()
-        self.user1 = User.objects.create_user(username="test")
+        self.user1 = User.objects.create_user(username="test", id=1)
 
         label = {
             "height": 100,
@@ -22,6 +22,7 @@ class LabelContentDB(TestCase):
             title="test",
             label=label,
             user_id=self.user1.id,
+            dept_id=1
         )
         book.save()
 
@@ -35,6 +36,7 @@ class LabelContentDB(TestCase):
             title="test2",
             label=label,
             user_id=self.user1.id,
+            dept_id=1
         )
         book.save()
 
@@ -43,6 +45,7 @@ class LabelContentDB(TestCase):
             title="test3",
             label=label,
             user_id=self.user1.id,
+            dept_id=1
         )
         book.save()
 
@@ -51,6 +54,7 @@ class LabelContentDB(TestCase):
             title="test4",
             label=label,
             user_id=self.user1.id,
+            dept_id=1
         )
         book.save()
 
@@ -59,11 +63,11 @@ class LabelContentDB(TestCase):
             title="test5",
             label=label,
             user_id=self.user1.id,
+            dept_id=1
         )
         book.save()
 
     def test_search(self):
-
         bs = Book.objects.filter(~Q(label__has_key="height"))
         self.assertEqual(bs.count(), 0)
 
@@ -171,7 +175,6 @@ class LabelContentDB(TestCase):
         self.assertEqual(bs.count(), 0)
 
     def create_label(self):
-
         label_height = Label(
             cid="height",
             title="高度",
